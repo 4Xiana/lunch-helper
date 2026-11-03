@@ -1,0 +1,13 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# TRAE local skills & memory (not part of the app)
+.trae/
+
+# Local server caches
+node_modules/
+*.log

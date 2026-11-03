@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper UI - 组件展示</title>
+    <link rel="stylesheet" href="styles/index.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <style>
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .demo-section {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            box-sizing: border-box;
+        }
+        .demo-section + .demo-section {
+            border-top: 2px dashed rgba(128,128,128,0.3);
+        }
+        .section-title {
+            font-family: var(--font-condensed);
+            font-size: 180%;
+            font-weight: 600;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+        .section-desc {
+            font-size: 95%;
+            opacity: 0.7;
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+        .component-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin: 16px 0;
+        }
+        .component-label {
+            font-family: var(--font-condensed);
+            font-size: 85%;
+            opacity: 0.5;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            min-width: 100px;
+        }
+        .color-swatch {
+            width: 80px;
+            height: 80px;
+            border-radius: 4px;
+            display: flex;
+            align-items: flex-end;
+            padding: 8px;
+            box-sizing: border-box;
+            font-family: var(--font-condensed);
+            font-size: 75%;
+            font-weight: 600;
+        }
+        .nav-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(128,128,128,0.2);
+        }
+        .theme.light .nav-bar {
+            background: rgba(228, 228, 228, 0.85);
+        }
+        .theme.dark .nav-bar {
+            background: rgba(44, 44, 44, 0.85);
+        }
+        .nav-logo {
+            font-family: var(--font-condensed);
+            font-size: 150%;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        .hero {
+            text-align: center;
+            padding: 80px 20px 60px;
+        }
+        .hero-title {
+            font-family: var(--font-condensed);
+            font-size: clamp(280%, 8vw, 500%);
+            font-weight: 800;
+            letter-spacing: 4px;
+            line-height: 1;
+            margin-bottom: 16px;
+        }
+        .hero-subtitle {
+            font-size: 120%;
+            font-weight: 300;
+            opacity: 0.7;
+            max-width: 500px;
+            margin: 0 auto 30px;
+        }
+        .code-block {
+            font-family: monospace;
+            font-size: 85%;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow-x: auto;
+            white-space: pre;
+        }
+        .theme.light .code-block {
+            background: rgba(0,0,0,0.06);
+            color: var(--dark);
+        }
+        .theme.dark .code-block {
+            background: rgba(255,255,255,0.08);
+            color: var(--light);
+        }
+        .card {
+            padding: 20px;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .theme.light .card {
+            background: rgba(0,0,0,0.04);
+        }
+        .theme.dark .card {
+            background: rgba(255,255,255,0.06);
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .toast-demo-area {
+            position: relative;
+            height: 120px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .theme.light .toast-demo-area {
+            background: rgba(0,0,0,0.04);
+        }
+        .theme.dark .toast-demo-area {
+            background: rgba(255,255,255,0.06);
+        }
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            font-size: 90%;
+            opacity: 0.5;
+            font-weight: 300;
+        }
+        .tag {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 2px;
+            font-family: var(--font-condensed);
+            font-size: 80%;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin: 2px;
+        }
+    </style>
+</head>
+<body class="theme light">
+
+    <div class="nav-bar">
+        <div class="nav-logo">PAPER UI</div>
+        <div class="component-row" style="margin:0;">
+            <div class="button outlined dark" id="themeToggle" style="padding:6px 16px;font-size:100%;">
+                <span id="themeIcon">🌙</span> <span id="themeText">暗色</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast dismissable bg primary" id="welcomeToast" data-position="bottom" data-visible="true" style="position:fixed;z-index:200;">
+        <div class="title">✎ 欢迎来到 Paper UI 组件展示 — 鼠标悬停按钮查看动效</div>
+        <div class="cross" onclick="dismissToast('welcomeToast')">✕</div>
+    </div>
+
+    <div class="container fluid" style="padding:0;">
+
+        <section class="hero">
+            <img src="assets/paper.png" alt="paper" width="64px" height="64px" style="margin-bottom:16px;opacity:0.8;">
+            <div class="hero-title">PAPER UI</div>
+            <div class="hero-subtitle">
+                一个极简、响应式、可定制的 CSS 框架 —— 铅笔纸张质感，中饱和度配色，附带精致微交互。
+            </div>
+            <div class="component-row center-x" style="justify-content:center;">
+                <a href="#components" class="button bg primary text condensed" style="padding:10px 24px;">开始浏览</a>
+                <a href="https://github.com/kadamyash/paper-ui" target="_blank" class="button outlined dark text condensed" style="padding:10px 24px;">GitHub 仓库</a>
+            </div>
+            <div style="margin-top:20px;">
+                <span class="tag bg primary">CSS Framework</span>
+                <span class="tag bg success">Responsive</span>
+                <span class="tag" style="background:var(--taubmans-light-bulb);color:#000;">SCSS</span>
+                <span class="tag bg mid">jQuery</span>
+            </div>
+        </section>
+
+        <section class="demo-section" id="components">
+            <div class="section-title">🎨 配色系统</div>
+            <div class="section-desc">6 种语义化颜色变量，可通过 SCSS 变量轻松定制。</div>
+            <div class="component-row">
+                <div class="color-swatch bg primary" style="color:#000;">Primary<br>#56b7ec</div>
+                <div class="color-swatch bg success" style="color:#000;">Success<br>#6DE28E</div>
+                <div class="color-swatch bg danger" style="color:#fff;">Danger<br>#df4848</div>
+                <div class="color-swatch bg dark" style="color:#fff;">Dark<br>#2C2C2C</div>
+                <div class="color-swatch bg mid" style="color:#fff;">Mid<br>#707070</div>
+                <div class="color-swatch bg light" style="color:#000;border:1px solid #ccc;">Light<br>#E4E4E4</div>
+                <div class="color-swatch" style="background:var(--taubmans-light-bulb);color:#000;">Accent<br>#ffbb73</div>
+            </div>
+        </section>
+
+        <section class="demo-section">
+            <div class="section-title">✎ 排版 Typography</div>
+            <div class="section-desc">基于 Barlow 与 Barlow Condensed 字体家族，提供多级文字样式。</div>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="text title">Title 标题文字</div>
+                    <div class="text subtitle">Subtitle 副标题文字</div>
+                    <div class="text caption">Caption 说明文字 — 110% 大小，300 字重</div>
+                    <div class="text body">Body 正文文字 — 100% 大小，300 字重，80% 透明度</div>
+                    <div class="text muted">Muted 弱化文字 — 70% 大小，50% 透明度</div>
+                </div>
+                <div class="card">
+                    <div class="text condensed title">Condensed 窄体标题</div>
+                    <div class="text condensed caption">Condensed 窄体说明文字</div>
+                    <div class="text monospace caption">Monospace 等宽文字</div>
+                    <div class="text caption">
+                        超链接样式：<a class="text hyperlink" href="#">这是一个链接</a>
+                    </div>
+                    <div class="text body" style="margin-top:8px;">
+                        <i>斜体</i> · <b>粗体</b> · <span style="text-decoration:line-through;">删除线</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="demo-section">
+            <div class="section-title">◼ 按钮 Buttons</div>
+            <div class="section-desc">填充按钮与描边按钮两种变体，桌面端描边按钮带有精致的渐变填充悬停动效。</div>
+
+            <div class="component-label" style="margin-bottom:4px;">填充按钮 Filled</div>
+            <div class="component-row">
+                <div class="button bg primary text condensed" style="padding:8px 20px;">Primary</div>
+                <div class="button bg success text condensed" style="padding:8px 20px;">Success</div>
+                <div class="button bg danger text condensed" style="padding:8px 20px;">Danger</div>
+                <div class="button bg dark text condensed" style="padding:8px 20px;">Dark</div>
+                <div class="button bg mid text condensed" style="padding:8px 20px;">Mid</div>
+                <div class="button bg light text condensed" style="padding:8px 20px;color:#000;">Light</div>
+            </div>
+
+            <div class="component-label" style="margin-top:20px;margin-bottom:4px;">描边按钮 Outlined</div>
+            <div class="component-row">
+                <div class="button outlined primary text condensed" style="padding:8px 20px;">Primary</div>
+                <div class="button outlined success text condensed" style="padding:8px 20px;">Success</div>
+                <div class="button outlined danger text condensed" style="padding:8px 20px;">Danger</div>
+                <div class="button outlined dark text condensed" style="padding:8px 20px;">Dark</div>
+                <div class="button outlined mid text condensed" style="padding:8px 20px;">Mid</div>
+                <div class="button outlined light text condensed" style="padding:8px 20px;">Light</div>
+            </div>
+
+            <div class="component-label" style="margin-top:20px;margin-bottom:4px;">不同尺寸</div>
+            <div class="component-row">
+                <div class="button bg primary text condensed" style="padding:4px 12px;font-size:90%;">Small</div>
+                <div class="button bg primary text condensed" style="padding:8px 20px;">Default</div>
+                <div class="button bg primary text condensed" style="padding:12px 28px;font-size:140%;">Large</div>
+            </div>
+
+            <div class="code-block">&lt;div class="button outlined primary text condensed"&gt;Primary&lt;/div&gt;
+&lt;div class="button bg success text condensed"&gt;Success&lt;/div&gt;</div>
+        </section>
+
+        <section class="demo-section">
+            <div class="section-title">◉ 图标按钮 Icon Buttons</div>
+            <div class="section-desc">圆形图标按钮，鼠标悬停时水平展开并显示标签文字。</div>
+            <div class="component-row" style="justify-content:center;padding:20px 0;">
+                <a href="#" class="icon-button" onclick="return false;">
+                    <div class="image text condensed">✉</div>
+                    <div class="label" data-label="Email"></div>
+                </a>
+                <a href="#" class="icon-button" onclick="return false;">
+                    <div class="image text condensed">★</div>
+                    <div class="label" data-label="Favorite"></div>
+                </a>
+                <a href="#" class="icon-button" onclick="return false;">
+                    <div class="image text condensed">♡</div>
+                    <div class="label" data-label="Like"></div>
+                </a>
+                <a href="#" class="icon-button" onclick="return false;">
+                    <div class="image text condensed">✎</div>
+                    <div class="label" data-label="Edit"></div>
+                </a>
+                <a href="#" class="icon-button" onclick="return false;">
+                    <div class="image text condensed">⚙</div>
+                    <div class="label" data-label="Settings"></div>
+                </a>
+                <a href="#" class="icon-button" onclick="return false;">
+                    <div class="image text condensed">↗</div>
+                    <div class="label" data-label="Share"></div>
+                </a>
+            </div>
+            <div class="code-block">&lt;a class="icon-button"&gt;
+  &lt;div class="image text condensed"&gt;✉&lt;/div&gt;
+  &lt;div class="label" data-label="Email"&gt;&lt;/div&gt;
+&lt;/a&gt;</div>
+        </section>
+
+        <section class="demo-section">
+            <div class="section-title">▬ Toast 提示</div>
+            <div class="section-desc">支持顶部/底部定位，可关闭，支持多种语义颜色。</div>
+
+            <div class="component-row">
+                <div class="button bg primary text condensed" style="padding:6px 16px;font-size:95%;" onclick="showToast('toast-primary','primary')">显示 Primary</div>
+                <div class="button bg success text condensed" style="padding:6px 16px;font-size:95%;" onclick="showToast('toast-success','success')">显示 Success</div>
+                <div class="button bg danger text condensed" style="padding:6px 16px;font-size:95%;" onclick="showToast('toast-danger','danger')">显示 Danger</div>
+                <div class="button bg dark text condensed" style="padding:6px 16px;font-size:95%;" onclick="showToast('toast-dark','dark')">显示 Dark</div>
+            </div>
+
+            <div class="toast-demo-area" id="toastArea">
+                <div class="toast dismissable bg primary" id="toast-primary" data-position="bottom" data-visible="false" style="position:absolute;width:calc(100% - 8px);">
+                    <div class="title">✓ 这是一条 Primary 提示消息</div>
+                    <div class="cross" onclick="dismissToast('toast-primary')">✕</div>
+                </div>
+                <div class="toast dismissable bg success" id="toast-success" data-position="bottom" data-visible="false" style="position:absolute;width:calc(100% - 8px);">
+                    <div class="title">✓ 操作成功完成！</div>
+                    <div class="cross" onclick="dismissToast('toast-success')">✕</div>
+                </div>
+                <div class="toast dismissable bg danger" id="toast-danger" data-position="bottom" data-visible="false" style="position:absolute;width:calc(100% - 8px);">
+                    <div class="title">✕ 出错了，请稍后重试</div>
+                    <div class="cross" onclick="dismissToast('toast-danger')">✕</div>
+                </div>
+                <div class="toast dismissable bg dark" id="toast-dark" data-position="bottom" data-visible="false" style="position:absolute;width:calc(100% - 8px);">
+                    <div class="title">i 这是一条深色提示</div>
+                    <div class="cross" onclick="dismissToast('toast-dark')">✕</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="demo-section">
+            <div class="section-title">▦ 布局 Layout</div>
+            <div class="section-desc">基于 Flexbox 的布局工具类，支持行/列方向与多种对齐方式。</div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="text subtitle" style="margin-bottom:12px;">Flex Row（水平排列）</div>
+                    <div class="flex row" style="gap:8px;">
+                        <div class="button outlined dark text condensed" style="padding:6px 14px;font-size:90%;">项 1</div>
+                        <div class="button outlined dark text condensed" style="padding:6px 14px;font-size:90%;">项 2</div>
+                        <div class="button outlined dark text condensed" style="padding:6px 14px;font-size:90%;">项 3</div>
+                    </div>
+                    <div class="text muted" style="margin-top:8px;">.flex.row</div>
+                </div>
+                <div class="card">
+                    <div class="text subtitle" style="margin-bottom:12px;">Flex Column（垂直排列）</div>
+                    <div class="flex column" style="gap:8px;align-items:flex-start;">
+                        <div class="button outlined primary text condensed" style="padding:6px 14px;font-size:90%;">项 A</div>
+                        <div class="button outlined primary text condensed" style="padding:6px 14px;font-size:90%;">项 B</div>
+                        <div class="button outlined primary text condensed" style="padding:6px 14px;font-size:90%;">项 C</div>
+                    </div>
+                    <div class="text muted" style="margin-top:8px;">.flex.column</div>
+                </div>
+                <div class="card">
+                    <div class="text subtitle" style="margin-bottom:12px;">Space Between（两端对齐）</div>
+                    <div class="flex row space-between" style="gap:8px;">
+                        <span class="text caption">左侧</span>
+                        <span class="text caption">中间</span>
+                        <span class="text caption">右侧</span>
+                    </div>
+                    <div class="text muted" style="margin-top:8px;">.flex.row.space-between</div>
+                </div>
+                <div class="card">
+                    <div class="text subtitle" style="margin-bottom:12px;">Center XY（居中对齐）</div>
+                    <div class="flex row center-xy" style="height:80px;border-radius:4px;" id="centerDemo">
+                        <div class="button bg mid text condensed" style="padding:6px 14px;font-size:90%;">居中元素</div>
+                    </div>
+                    <div class="text muted" style="margin-top:8px;">.center-xy</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="demo-section">
+            <div class="section-title">◐ 主题切换 Theme</div>
+            <div class="section-desc">内置亮色与暗色主题，点击右上角按钮即时切换。</div>
+            <div class="card" style="text-align:center;padding:30px;">
+                <div class="text title" style="margin-bottom:8px;" id="themeStatusTitle">当前：亮色主题 Light</div>
+                <div class="text caption" style="margin-bottom:16px;">点击下方按钮切换明暗主题</div>
+                <div class="button bg primary text condensed" style="padding:10px 24px;" onclick="toggleTheme()">
+                    切换主题
+                </div>
+            </div>
+        </section>
+
+        <section class="demo-section">
+            <div class="section-title">✿ 综合示例 Card</div>
+            <div class="section-desc">将多种组件组合在一起的实际应用示例。</div>
+            <div class="grid-2">
+                <div class="card" style="padding:0;overflow:hidden;">
+                    <div style="height:120px;background:linear-gradient(135deg, var(--primary), var(--primary-hover));display:flex;align-items:center;justify-content:center;">
+                        <span style="font-family:var(--font-condensed);font-size:200%;font-weight:700;color:#fff;letter-spacing:2px;">PROJECT</span>
+                    </div>
+                    <div style="padding:20px;">
+                        <div class="text title" style="margin-bottom:6px;">设计项目卡片</div>
+                        <div class="text body" style="margin-bottom:14px;">
+                            使用 Paper UI 构建的内容卡片，展示了排版、按钮与配色的组合使用。
+                        </div>
+                        <div class="flex row" style="gap:8px;">
+                            <div class="button bg primary text condensed" style="padding:6px 16px;font-size:95%;">查看详情</div>
+                            <div class="button outlined dark text condensed" style="padding:6px 16px;font-size:95%;">收藏</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" style="padding:0;overflow:hidden;">
+                    <div style="height:120px;background:linear-gradient(135deg, var(--success), var(--success-hover));display:flex;align-items:center;justify-content:center;">
+                        <span style="font-family:var(--font-condensed);font-size:200%;font-weight:700;color:#fff;letter-spacing:2px;">TASK</span>
+                    </div>
+                    <div style="padding:20px;">
+                        <div class="text title" style="margin-bottom:6px;">任务管理面板</div>
+                        <div class="text body" style="margin-bottom:14px;">
+                            今日待办事项展示，搭配 Success 色系传达积极、完成的视觉感受。
+                        </div>
+                        <div class="flex row" style="gap:8px;flex-wrap:wrap;">
+                            <span class="tag bg success">已完成</span>
+                            <span class="tag bg primary">进行中</span>
+                            <span class="tag bg mid">待处理</span>
+                        </div>
+                        <div class="flex row" style="gap:8px;margin-top:14px;">
+                            <a href="#" class="icon-button" onclick="return false;" style="margin:0;width:32px;height:32px;border-radius:16px;">
+                                <div class="image text condensed" style="font-size:90%;">✎</div>
+                                <div class="label" data-label="编辑"></div>
+                            </a>
+                            <a href="#" class="icon-button" onclick="return false;" style="margin:0;width:32px;height:32px;border-radius:16px;background:var(--danger);">
+                                <div class="image text condensed" style="font-size:90%;">✕</div>
+                                <div class="label" data-label="删除"></div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="footer">
+            <div class="text caption">Paper UI · 极简铅笔纸张风格 CSS 框架</div>
+            <div class="text muted" style="margin-top:6px;">
+                原始仓库：
+                <a class="text hyperlink" href="https://github.com/kadamyash/paper-ui" target="_blank">github.com/kadamyash/paper-ui</a>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const isLight = body.classList.contains('light');
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+            const themeStatusTitle = document.getElementById('themeStatusTitle');
+
+            if (isLight) {
+                body.classList.remove('light');
+                body.classList.add('dark');
+                themeIcon.textContent = '☀';
+                themeText.textContent = '亮色';
+                themeStatusTitle.textContent = '当前：暗色主题 Dark';
+            } else {
+                body.classList.remove('dark');
+                body.classList.add('light');
+                themeIcon.textContent = '🌙';
+                themeText.textContent = '暗色';
+                themeStatusTitle.textContent = '当前：亮色主题 Light';
+            }
+        }
+
+        document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
+        function dismissToast(id) {
+            const el = document.getElementById(id);
+            if (el) el.setAttribute('data-visible', 'false');
+        }
+
+        function showToast(id, color) {
+            ['toast-primary','toast-success','toast-danger','toast-dark'].forEach(tid => {
+                const t = document.getElementById(tid);
+                if (t) t.setAttribute('data-visible', 'false');
+            });
+            const el = document.getElementById(id);
+            if (el) {
+                el.setAttribute('data-visible', 'true');
+                clearTimeout(window._toastTimer);
+                window._toastTimer = setTimeout(() => dismissToast(id), 3500);
+            }
+        }
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

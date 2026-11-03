@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>饭来 FANLAI · 今天午饭吃什么</title>
+<style>
+:root{
+  --yellow:#FFD100;
+  --yellow-press:#F0C400;
+  --yellow-soft:#FFF3B0;
+  --bg:#F4F4F4;
+  --card:#FFFFFF;
+  --ink:#1A1A1A;
+  --ink-soft:#666666;
+  --ink-faint:#9A9A9A;
+  --line:#ECECEC;
+  --red:#FF4D1A;
+  --red-soft:#FFF1EC;
+  --green:#06C167;
+  --orange:#FF9500;
+  --shadow:0 2px 10px rgba(0,0,0,.05);
+  --shadow-lg:0 10px 30px rgba(0,0,0,.10);
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --num:"DIN Alternate","Helvetica Neue",-apple-system,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:var(--sans);color:var(--ink);
+  background:#E6E6E6;
+  overflow:hidden;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+ul{list-style:none}
+
+/* ============ 舞台：无原型机，居中 App 列 ============ */
+.stage{
+  height:100%;display:flex;align-items:stretch;justify-content:center;
+}
+.phone{
+  width:100%;max-width:430px;height:100%;
+  background:var(--bg);position:relative;
+  border-left:1px solid #DCDCDC;border-right:1px solid #DCDCDC;
+}
+.screen{
+  position:relative;width:100%;height:100%;overflow:hidden;
+  background:var(--bg);display:flex;flex-direction:column;
+}
+
+/* ============ 通用 ============ */
+.view{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transform:translateX(18px);transition:opacity .28s ease,transform .28s ease;background:var(--bg)}
+.view.active{opacity:1;pointer-events:auto;transform:translateX(0)}
+.view.leaving{transform:translateX(-18px)}
+.scroll{flex:1;overflow-y:auto;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+
+.brand-row{display:flex;align-items:center;gap:9px}
+.logo{
+  width:34px;height:34px;border-radius:9px;background:var(--ink);color:var(--yellow);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:18px;
+}
+.brand-name{font-weight:800;font-size:18px;letter-spacing:.5px;color:var(--ink)}
+.brand-name em{font-style:normal;font-size:10.5px;letter-spacing:1px;color:var(--ink-faint);margin-left:5px;font-weight:600}
+
+/* 选项 chip（引导页 / 偏好抽屉通用） */
+.chip{
+  border:1px solid #E4E4E4;background:var(--card);color:#333;
+  border-radius:999px;padding:8px 15px;font-size:13.5px;font-weight:500;
+  transition:all .15s ease;white-space:nowrap;
+}
+.chip:hover{border-color:#C9C9C9}
+.chip.on{background:var(--yellow);border-color:var(--yellow);color:var(--ink);font-weight:700}
+.chip.red.on{background:var(--red);border-color:var(--red);color:#fff}
+.chip-group{display:flex;flex-wrap:wrap;gap:9px}
+
+/* ============ 引导页 ============ */
+#view-onbo{z-index:40}
+.onbo-head{padding:22px 20px 20px;background:var(--yellow);border-radius:0 0 20px 20px}
+.onbo-head h1{font-weight:800;font-size:27px;line-height:1.28;letter-spacing:.5px;color:var(--ink)}
+.onbo-head h1 span{color:var(--red)}
+.onbo-head .hand{font-weight:600;color:var(--ink);font-size:12px;display:inline-block;margin-top:10px;background:rgba(0,0,0,.08);border-radius:999px;padding:4px 12px}
+.onbo-head p{margin-top:11px;color:#3D3D3D;font-size:13px;line-height:1.7}
+.onbo-head p b{color:var(--ink);font-weight:700}
+.setup-block{margin:12px 14px 0;background:var(--card);border-radius:14px;padding:15px 16px 16px}
+.setup-title{display:flex;align-items:baseline;gap:8px;margin-bottom:11px}
+.setup-title .idx{font-weight:800;color:var(--red);font-size:14px}
+.setup-title h3{font-size:15px;font-weight:700}
+.setup-title .hint{font-size:11.5px;color:var(--ink-faint);margin-left:auto}
+.seg{display:flex;background:#F3F3F3;border-radius:10px;padding:4px;gap:4px}
+.seg button{flex:1;padding:8px 2px;border-radius:8px;font-size:13px;font-weight:500;color:var(--ink-soft);transition:all .18s;white-space:nowrap}
+.seg button.on{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.seg button .em{display:block;font-size:10.5px;color:var(--ink-faint);font-weight:400;margin-top:1px;white-space:nowrap}
+.chip-group{gap:8px}
+.toggle-row{display:flex;align-items:center;gap:12px;background:#F8F8F8;border-radius:12px;padding:11px 13px;margin-bottom:8px}
+.toggle-row:last-child{margin-bottom:0}
+.toggle-row .t-ic{font-size:20px}
+.toggle-row .t-tx b{display:block;font-size:13.5px}
+.toggle-row .t-tx small{font-size:11.5px;color:var(--ink-faint)}
+.switch{width:44px;height:26px;border-radius:999px;background:#DDDDDD;position:relative;transition:background .2s;flex-shrink:0;margin-left:auto}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .2s}
+.switch.on{background:var(--green)}
+.switch.on::after{left:20px}
+.onbo-foot{padding:10px 16px 22px;margin-top:auto;background:transparent}
+.btn-big{
+  width:100%;padding:14px;border-radius:999px;background:var(--yellow);color:var(--ink);
+  font-size:16px;font-weight:700;letter-spacing:1px;
+  transition:background .12s,transform .12s;
+}
+.btn-big:active{background:var(--yellow-press);transform:scale(.99)}
+.onbo-foot .tip{text-align:center;font-size:11.5px;margin-top:9px;color:var(--ink-faint)}
+
+/* ============ 首页：美团黄头部 ============ */
+#view-home{z-index:30}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:13px 16px 4px;background:var(--yellow)}
+.icon-btn{
+  width:36px;height:36px;border-radius:50%;background:var(--card);
+  display:flex;align-items:center;justify-content:center;font-size:16px;position:relative;transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.08);
+}
+.icon-btn:active{transform:scale(.92)}
+.icon-btn .dot-badge{position:absolute;top:-3px;right:-3px;background:var(--red);color:#fff;font-size:10px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;border:1.5px solid var(--yellow)}
+.greet{padding:2px 16px 0;background:var(--yellow)}
+.greet .date{font-size:11.5px;color:rgba(0,0,0,.55);font-weight:500}
+.greet h2{font-weight:800;font-size:22px;margin-top:3px;letter-spacing:.3px;color:var(--ink)}
+.greet h2 span{color:var(--red)}
+.streak-pill{display:inline-flex;align-items:center;gap:4px;margin-top:7px;background:#fff;color:var(--red);border-radius:999px;padding:3px 11px;font-size:11.5px;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.streak-pill .n{font-weight:800;font-size:13px}
+
+/* 自然语言需求输入（嵌在黄头部，像外卖搜索框） */
+.ask-box{padding:11px 16px 13px;background:var(--yellow)}
+.ask-input{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:999px;padding:4px 5px 4px 14px;box-shadow:0 2px 7px rgba(0,0,0,.07)}
+.ask-ic{font-size:14px;flex:none}
+.ask-input input{flex:1;border:none;outline:none;background:transparent;font-family:var(--sans);font-size:13.5px;color:var(--ink);min-width:0}
+.ask-input input::placeholder{color:var(--ink-faint)}
+#ask-send{flex:none;background:var(--ink);color:#fff;font-weight:600;font-size:13px;border-radius:999px;padding:7px 16px;transition:background .12s}
+#ask-send:active{background:#333}
+#ask-send:disabled{opacity:.55;cursor:wait}
+.ask-examples{display:flex;align-items:center;gap:6px;margin-top:9px;flex-wrap:wrap}
+.ask-ex-label{font-size:11px;color:rgba(0,0,0,.55);font-weight:600}
+.ex-chip{background:rgba(255,255,255,.9);color:#333;border-radius:999px;font-size:11.5px;padding:5px 11px;font-weight:500;transition:background .15s,transform .1s}
+.ex-chip:hover{background:#fff}
+.ex-chip:active{transform:scale(.95)}
+.today-chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}
+.chip-break{flex-basis:100%;height:0}
+.chips-label{font-size:11px;font-weight:700;color:var(--red);margin-right:2px}
+.chips-label.mood-label{color:#8A6D00}
+#today-chips .chip{display:inline-flex;align-items:center;gap:5px;border:1px solid #E4E4E4;background:#fff;color:#333;border-radius:999px;font-size:11.5px;font-weight:500;padding:3px 4px 3px 10px;box-shadow:none;cursor:pointer;transition:opacity .12s}
+#today-chips .chip:active{opacity:.7;transform:none}
+#today-chips .chip.chip-mood{background:#FFF3B0;border-color:#F0D678;color:#5C4500}
+#today-chips .chip.chip-mood i{background:rgba(0,0,0,.14);color:#5C4500}
+#today-chips .chip i{font-style:normal;width:15px;height:15px;border-radius:50%;background:#EDEDED;color:#666;font-size:10px;line-height:15px;text-align:center;font-weight:700}
+#today-chips .chip-clear{background:var(--red-soft);border-color:transparent;color:var(--red);font-weight:600;padding:3px 11px}
+#today-chips .chip-clear i{display:none}
+
+.card-zone{flex:1;padding:10px 14px 6px;display:flex;flex-direction:column;position:relative;overflow-y:auto;scrollbar-width:none}
+.card-zone::-webkit-scrollbar{display:none}
+
+/* 空状态（还没推荐） */
+.empty-card{
+  flex:1;border:none;border-radius:16px;background:var(--card);box-shadow:var(--shadow);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px;margin-bottom:8px;
+}
+.empty-card .bowl{font-size:56px;animation:bob 2.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.empty-card h3{font-size:19px;font-weight:800;margin-top:13px}
+.empty-card p{font-size:13px;color:var(--ink-soft);margin-top:8px;line-height:1.7;max-width:260px}
+.empty-card .rules{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:16px}
+.empty-card .rules span{font-size:11.5px;background:#F5F5F5;color:var(--ink-soft);border-radius:6px;padding:4px 10px}
+
+/* AI 思考 */
+.thinking{background:var(--card);border-radius:16px;padding:22px 18px;box-shadow:var(--shadow)}
+.thinking-head{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.ai-orb{width:34px;height:34px;border-radius:50%;background:conic-gradient(from 0deg,#FFB800,var(--yellow),#FFB800);animation:spin 2.2s linear infinite;display:flex;align-items:center;justify-content:center}
+.ai-orb::after{content:"饭";background:var(--card);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:var(--ink)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.thinking-head b{font-size:15px}
+.thinking-head small{display:block;font-size:11.5px;color:var(--ink-faint)}
+.t-step{display:flex;align-items:center;gap:10px;padding:9px 0;font-size:13.5px;color:var(--ink-faint);transition:color .25s}
+.t-step .tick{width:19px;height:19px;border-radius:50%;border:2px solid #DDDDDD;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent;transition:all .25s}
+.t-step.active{color:var(--ink);font-weight:500}
+.t-step.active .tick{border-color:var(--yellow-press)}
+.t-step.done{color:var(--ink-soft)}
+.t-step.done .tick{background:var(--green);border-color:var(--green);color:#fff}
+.typing-dots{display:inline-flex;gap:3px;margin-left:2px}
+.typing-dots i{width:4px;height:4px;border-radius:50%;background:#FFB800;animation:blink 1.2s infinite}
+.typing-dots i:nth-child(2){animation-delay:.2s}
+.typing-dots i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+.skeleton-row{margin-top:18px;background:#F0F0F0;border-radius:6px;overflow:hidden;height:13px;position:relative}
+.skeleton-row::after{content:"";position:absolute;inset:0;width:40%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.85),transparent);animation:shimmer 1.3s infinite}
+.skeleton-row.s2{width:78%}.skeleton-row.s3{width:58%}
+@keyframes shimmer{from{transform:translateX(-110%)}to{transform:translateX(260%)}}
+
+/* 推荐卡（白底信息卡） */
+.dish-card{
+  position:relative;background:var(--card);border-radius:16px;padding:0;
+  box-shadow:var(--shadow);
+  transform-origin:bottom center;
+}
+.dish-card.enter{animation:cardIn .42s cubic-bezier(.2,.8,.25,1) both}
+.dish-card.reroll-in{animation:cardInR .35s ease both}
+.dish-card.reroll-out{animation:cardOut .28s ease both}
+@keyframes cardIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes cardInR{from{opacity:0;transform:translateX(46px)}to{opacity:1;transform:none}}
+@keyframes cardOut{to{opacity:0;transform:translateX(-46px)}}
+.ticket-top{
+  padding:14px 16px 10px;position:relative;
+  background:var(--card);
+  border-radius:16px 16px 0 0;
+}
+.perforation{height:0;border-top:1px solid #F2F2F2;margin:0 16px;position:relative}
+.perforation::before,.perforation::after{display:none}
+.ticket-label{display:flex;align-items:center;justify-content:space-between}
+.ticket-label .ai-tag{font-size:11.5px;color:var(--ink-faint);font-weight:500}
+.ticket-label .ai-tag b{color:var(--red);font-weight:800}
+.stamp{
+  border-radius:7px;color:var(--ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;
+  background:var(--yellow);padding:4px 9px;
+  animation:stamp .3s ease both;
+}
+@keyframes stamp{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+.stamp.alt{background:#F1F1F1;color:#666}
+.stamp.locked{background:var(--red);color:#fff}
+.stamp b{font-size:12.5px;font-weight:800;letter-spacing:1px}
+.stamp small{font-size:8.5px;letter-spacing:.5px;color:inherit;opacity:.65}
+.dish-hero{display:flex;gap:12px;margin-top:10px;align-items:center}
+.dish-emoji{
+  width:58px;height:58px;border-radius:12px;flex-shrink:0;font-size:31px;
+  display:flex;align-items:center;justify-content:center;
+  background:#F7F7F7;
+}
+.dish-name{flex:1;min-width:0}
+.dish-name h3{font-weight:800;font-size:20px;line-height:1.25}
+.dish-name .meta{font-size:11.5px;color:var(--ink-faint);margin-top:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.dish-name .price{font-weight:800;color:var(--red);font-size:17px}
+.match-wrap{display:flex;align-items:center;gap:8px;margin-top:7px}
+.match-bar{flex:1;height:6px;border-radius:99px;background:#F0F0F0;overflow:hidden}
+.match-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#FFE14D,var(--yellow-press));width:0;transition:width .8s .2s cubic-bezier(.2,.8,.2,1)}
+.match-num{font-weight:800;font-size:14px;color:var(--ink);min-width:42px;text-align:right}
+.match-num span{font-weight:500}
+.ticket-body{padding:11px 16px 13px}
+.reasons-title{font-size:11.5px;font-weight:600;color:var(--ink-faint);margin-bottom:5px}
+.reason{display:flex;gap:8px;font-size:13px;line-height:1.5;color:#333;padding:3.5px 0;opacity:0;transform:translateY(8px);animation:reasonIn .4s forwards}
+@keyframes reasonIn{to{opacity:1;transform:none}}
+.reason .r-ic{color:var(--green);font-weight:800;flex-shrink:0}
+.reason.warn .r-ic{color:var(--orange)}
+.dish-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.dish-tags span{font-size:11px;background:#F5F5F5;color:var(--ink-soft);border-radius:5px;padding:3px 8px;font-weight:400}
+
+/* 已确认状态 */
+.confirmed-veil{position:absolute;inset:0;border-radius:16px;background:rgba(255,255,255,.78);backdrop-filter:blur(1px);z-index:5;display:none;align-items:center;justify-content:center}
+.dish-card.confirmed .confirmed-veil{display:flex}
+.big-stamp{
+  background:var(--red);color:#fff;border-radius:13px;padding:15px 24px;
+  text-align:center;
+  animation:stamp .35s cubic-bezier(.2,1.4,.4,1) both;
+}
+.big-stamp b{display:block;font-size:26px;font-weight:800;letter-spacing:4px}
+.big-stamp small{font-size:10px;letter-spacing:1.5px;color:rgba(255,255,255,.85)}
+
+/* 底部操作 */
+.actions{padding:8px 14px 16px;display:flex;flex-direction:column;gap:8px}
+.btn-row{display:flex;gap:10px}
+.btn-main{flex:1.6;padding:13px;border-radius:999px;background:var(--yellow);color:var(--ink);font-size:16px;font-weight:700;transition:background .12s,transform .12s;display:flex;align-items:center;justify-content:center;gap:7px}
+.btn-main:active{background:var(--yellow-press);transform:scale(.99)}
+.btn-reroll{flex:1;padding:13px;border-radius:999px;border:1px solid #E2E2E2;background:var(--card);color:#333;font-size:14.5px;font-weight:600;transition:all .12s;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-reroll:active{background:#F5F5F5;transform:scale(.98)}
+.btn-reroll.spinning .ricon{animation:spin .6s linear}
+.btn-undo{width:100%;padding:11px;border-radius:999px;border:1px solid #E5E5E5;background:var(--card);color:var(--ink-soft);font-size:13px;font-weight:500}
+.confirmed-tip{text-align:center;font-size:12.5px;color:var(--green);font-weight:600;padding:4px 0}
+
+/* 空结果 */
+.empty-result{text-align:center;padding:26px 20px}
+.empty-result .e-ic{font-size:44px}
+.empty-result h4{font-size:18px;font-weight:800;margin:10px 0 6px}
+.empty-result p{font-size:13px;color:var(--ink-soft);line-height:1.7;margin-bottom:14px}
+
+/* ============ 弹层 / 抽屉 ============ */
+.mask{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:70;opacity:0;pointer-events:none;transition:opacity .28s}
+.mask.open{opacity:1;pointer-events:auto}
+.sheet{
+  position:absolute;left:0;right:0;bottom:0;z-index:80;background:var(--bg);
+  border-radius:16px 16px 0 0;max-height:86%;display:flex;flex-direction:column;
+  transform:translateY(105%);transition:transform .32s cubic-bezier(.2,.85,.25,1);
+  box-shadow:0 -8px 30px rgba(0,0,0,.15);
+}
+.sheet.open{transform:translateY(0)}
+.sheet-grab{width:38px;height:4px;border-radius:99px;background:#D0D0D0;margin:9px auto 2px;flex-shrink:0}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;padding:10px 18px 6px}
+.sheet-head h3{font-size:18px;font-weight:800}
+.sheet-head .icon-btn{width:32px;height:32px;font-size:13px;box-shadow:none;border:1px solid #ECECEC}
+.sheet-body{padding:8px 16px 30px;overflow-y:auto;scrollbar-width:none}
+.sheet-body::-webkit-scrollbar{display:none}
+
+.streak-hero{background:var(--yellow);color:var(--ink);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:15px;margin-bottom:14px}
+.streak-hero .big{font-size:40px;font-weight:800;line-height:1;color:var(--ink)}
+.streak-hero .big small{font-size:14px;color:var(--ink);font-weight:600}
+.streak-hero .tx b{display:block;font-size:14px;font-weight:700}
+.streak-hero .tx small{font-size:12px;color:rgba(0,0,0,.55);line-height:1.5;display:block;margin-top:3px}
+
+.h-item{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:13px;padding:12px 14px;margin-bottom:9px;box-shadow:var(--shadow)}
+.h-item .h-emoji{width:44px;height:44px;border-radius:11px;background:#F7F7F7;display:flex;align-items:center;justify-content:center;font-size:23px;flex-shrink:0}
+.h-item .h-tx{flex:1;min-width:0}
+.h-item .h-tx b{font-size:14px;display:block;font-weight:600}
+.h-item .h-tx small{font-size:11.5px;color:var(--ink-faint)}
+.h-item .h-day{font-size:11px;color:var(--ink-faint);font-weight:500;text-align:right;flex-shrink:0}
+.h-item .h-day i{display:block;font-style:normal;color:var(--green);font-size:10px;margin-top:2px}
+.h-item.today{box-shadow:0 0 0 2px var(--yellow),var(--shadow)}
+.h-empty{text-align:center;color:var(--ink-faint);font-size:13px;padding:30px 0}
+
+.prefs-block{margin:0 0 12px;background:var(--card);border-radius:14px;padding:14px 16px}
+.prefs-block > h4{font-size:14px;font-weight:700;margin-bottom:11px;display:flex;align-items:baseline;gap:7px}
+.prefs-block > h4 .n{font-weight:800;color:var(--red);font-size:13px}
+#btn-save-prefs{margin-top:4px}
+.danger-link{display:block;margin:16px auto 0;font-size:12.5px;color:var(--ink-faint);text-decoration:underline;text-underline-offset:3px;background:none}
+
+/* 撒花 */
+.confetti{position:absolute;width:9px;height:9px;z-index:90;pointer-events:none;opacity:0;border-radius:2px}
+.confetti.go{animation:fall 1.1s ease-out forwards}
+@keyframes fall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(180px) rotate(340deg)}}
+
+/* toast */
+.toast{
+  position:absolute;left:50%;bottom:104px;transform:translate(-50%,14px);z-index:95;
+  background:rgba(0,0,0,.84);color:#fff;font-size:13px;padding:10px 18px;border-radius:10px;
+  opacity:0;transition:all .28s;pointer-events:none;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <!-- 应用 -->
+  <div class="phone">
+    <div class="screen">
+
+      <!-- ============ 引导 / 偏好设置 ============ -->
+      <section class="view active" id="view-onbo">
+        <div class="scroll">
+          <div class="onbo-head">
+            <div class="brand-row" style="margin-bottom:16px">
+              <div class="logo">饭</div>
+              <div class="brand-name">饭来<em>FANLAI</em></div>
+            </div>
+            <h1>别刷外卖了，<br><span>今天这顿</span>我定。</h1>
+            <div class="hand">~ 30 秒告诉我你的口味 ~</div>
+            <p>以后每天中午，我会直接替你挑好<b>一道午饭</b>：不合口味的不推、忌口的不推、<b>昨天吃过的今天自动避开</b>。</p>
+          </div>
+
+          <div class="setup-block">
+            <div class="setup-title"><span class="idx">01</span><h3>你能接受多辣？</h3></div>
+            <div class="seg" id="seg-spice">
+              <button data-v="0">完全不辣<span class="em">清汤挂面相安无事</span></button>
+              <button data-v="1" class="on">来点微辣<span class="em">提味即可</span></button>
+              <button data-v="2">无辣不欢<span class="em">越辣越下饭</span></button>
+            </div>
+          </div>
+
+          <div class="setup-block">
+            <div class="setup-title"><span class="idx">02</span><h3>喜欢什么味儿？</h3><span class="hint">可多选</span></div>
+            <div class="chip-group" id="chips-flavor"></div>
+          </div>
+
+          <div class="setup-block">
+            <div class="setup-title"><span class="idx">03</span><h3>有什么不吃的？</h3><span class="hint">硬忌口，绝不推荐</span></div>
+            <div class="chip-group" id="chips-exclude"></div>
+          </div>
+
+          <div class="setup-block">
+            <div class="setup-title"><span class="idx">04</span><h3>还有两个小要求</h3></div>
+            <div class="toggle-row">
+              <span class="t-ic">🫧</span>
+              <div class="t-tx"><b>少油少炸</b><small>排除油炸菜和重油菜，吃完下午不犯困</small></div>
+              <div class="switch on" data-k="lessOil"></div>
+            </div>
+            <div class="toggle-row">
+              <span class="t-ic">🍚</span>
+              <div class="t-tx"><b>顿顿要有主食</b><small>米饭 / 面 / 粉都行，管饱到下班</small></div>
+              <div class="switch on" data-k="needStaple"></div>
+            </div>
+          </div>
+        </div>
+        <div class="onbo-foot">
+          <button class="btn-big" id="btn-start">定好了，给我推荐 →</button>
+          <div class="tip">口味随时可以改 · 数据只存在你的浏览器里</div>
+        </div>
+      </section>
+
+      <!-- ============ 首页 ============ -->
+      <section class="view" id="view-home">
+        <div class="topbar">
+          <div class="brand-row">
+            <div class="logo" style="width:34px;height:34px;font-size:17px;border-radius:10px">饭</div>
+            <div class="brand-name" style="font-size:16px">饭来<em>FANLAI</em></div>
+          </div>
+          <div style="display:flex;gap:9px">
+            <button class="icon-btn" id="btn-history" title="最近吃过">📒<span class="dot-badge" id="history-badge">2</span></button>
+            <button class="icon-btn" id="btn-prefs" title="口味设置">⚙️</button>
+          </div>
+        </div>
+
+        <div class="greet">
+          <div class="date" id="today-date"></div>
+          <h2>中午好，小 A，<span>吃点啥？</span></h2>
+          <div class="streak-pill">🔥 已连续 <span class="n" id="streak-n">2</span> 天主菜不重样</div>
+        </div>
+
+        <!-- 主动表达优先：直接说出当下想法；没头绪时再点下方的发散方向 -->
+        <div class="ask-box">
+          <div class="ask-input">
+            <span class="ask-ic">💬</span>
+            <input id="ask-input" type="text" placeholder="直接说你想吃啥：嘴馋想来点辣的、20块以内、不要鸡…" maxlength="60" />
+            <button id="ask-send" title="按这句话现筛">开筛</button>
+          </div>
+          <div class="ask-examples">
+            <span class="ask-ex-label">没头绪？点个感觉</span>
+            <button class="ex-chip" data-say="今天想吃点热乎带汤的">🍜 热乎带汤</button>
+            <button class="ex-chip" data-say="想来点重口过瘾的">🌶️ 重口过瘾</button>
+            <button class="ex-chip" data-say="想吃得清爽不腻一点">🥗 清爽不腻</button>
+            <button class="ex-chip" data-say="要下饭能管饱的">🍚 下饭管饱</button>
+            <button class="ex-chip" data-say="想尝点没吃过的新鲜花样">✨ 来点新鲜的</button>
+            <button class="ex-chip" data-say="今天想吃得实惠一点">💰 实惠一点</button>
+          </div>
+          <div class="today-chips" id="today-chips" style="display:none"></div>
+        </div>
+
+        <div class="card-zone" id="card-zone">
+          <div class="empty-card" id="empty-card">
+            <div class="bowl">🍱</div>
+            <h3>今天的午饭还没定</h3>
+            <p>把选择权交给我：从你的口味档案出发，避开忌口、油炸和昨天的菜，只端上最合适的一道。</p>
+            <div class="rules">
+              <span>✓ 按口味匹配</span><span>✓ 硬忌口过滤</span><span>✓ 避开昨天主菜</span><span>✓ 少油少炸</span><span>✓ 带主食</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions" id="home-actions" style="display:none">
+          <div class="btn-row">
+            <button class="btn-reroll" id="btn-reroll"><span class="ricon">↻</span>换一个</button>
+            <button class="btn-main" id="btn-confirm">就吃这个了！</button>
+          </div>
+        </div>
+
+        <div class="actions" id="empty-actions">
+          <button class="btn-big" id="btn-pick">🍚 帮我定今天的午饭</button>
+        </div>
+      </section>
+
+      <!-- 历史抽屉 -->
+      <div class="mask" id="mask-history"></div>
+      <div class="sheet" id="sheet-history">
+        <div class="sheet-grab"></div>
+        <div class="sheet-head">
+          <h3>📒 最近吃过</h3>
+          <button class="icon-btn" data-close="sheet-history">✕</button>
+        </div>
+        <div class="sheet-body">
+          <div class="streak-hero">
+            <div class="big"><span id="sheet-streak">2</span><small> 天</small></div>
+            <div class="tx"><b>主菜不重样</b><small>我会记住每天吃的主菜，<br>明天自动帮你换一道。</small></div>
+          </div>
+          <div id="history-list"></div>
+        </div>
+      </div>
+
+      <!-- 偏好抽屉 -->
+      <div class="mask" id="mask-prefs"></div>
+      <div class="sheet" id="sheet-prefs">
+        <div class="sheet-grab"></div>
+        <div class="sheet-head">
+          <h3>⚙️ 我的口味档案</h3>
+          <button class="icon-btn" data-close="sheet-prefs">✕</button>
+        </div>
+        <div class="sheet-body">
+          <div class="prefs-block">
+            <h4><span class="n">01</span>辣度</h4>
+            <div class="seg" id="seg-spice2">
+              <button data-v="0">完全不辣</button>
+              <button data-v="1">来点微辣</button>
+              <button data-v="2">无辣不欢</button>
+            </div>
+          </div>
+          <div class="prefs-block">
+            <h4><span class="n">02</span>喜欢的味道（多选）</h4>
+            <div class="chip-group" id="chips-flavor2"></div>
+          </div>
+          <div class="prefs-block">
+            <h4><span class="n">03</span>不吃的食材（多选）</h4>
+            <div class="chip-group" id="chips-exclude2"></div>
+          </div>
+          <div class="prefs-block">
+            <h4><span class="n">04</span>健康偏好</h4>
+            <div class="toggle-row">
+              <span class="t-ic">🫧</span>
+              <div class="t-tx"><b>少油少炸</b><small>排除油炸与重油菜</small></div>
+              <div class="switch" data-k="lessOil"></div>
+            </div>
+            <div class="toggle-row">
+              <span class="t-ic">🍚</span>
+              <div class="t-tx"><b>顿顿要有主食</b><small>只推荐带主食的套餐</small></div>
+              <div class="switch" data-k="needStaple"></div>
+            </div>
+          </div>
+          <button class="btn-big" id="btn-save-prefs">保存并重新推荐</button>
+          <button class="danger-link" id="btn-reset">清空演示数据（恢复出厂）</button>
+        </div>
+      </div>
+
+      <div class="toast" id="toast"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   数据：模拟外卖菜品库（单人办公室午餐场景）
+   staple: 主食类型；oil: 1清淡 2适中 3重油；fried: 是否油炸
+===================================================== */
+const FLAVORS = ['咸鲜下饭','酱香浓郁','酸甜开胃','清淡养生','酸辣过瘾','麻辣够味','葱香扑鼻','异域咖喱'];
+const EXCLUDES = ['鸡肉','牛肉','羊肉','猪肉','海鲜','鸡蛋','香菜','葱','姜','蒜','花生','豆制品','内脏'];
+const SPICE_LABEL = ['不辣','微辣','中辣','爆辣'];
+
+const DISHES = [
+  {id:1,  name:'黄焖鸡米饭',      emoji:'🍲',cuisine:'家常',main:'黄焖鸡',  staple:'米饭',spice:1,oil:2,fried:false,price:24,flavors:['酱香浓郁','咸鲜下饭'],ingredients:['鸡肉','土豆','香菇','青椒']},
+  {id:2,  name:'隆江猪脚饭',      emoji:'🍖',cuisine:'粤菜',main:'猪脚',    staple:'米饭',spice:0,oil:2,fried:false,price:26,flavors:['酱香浓郁'],ingredients:['猪肉','花生','青菜']},
+  {id:3,  name:'番茄炒蛋盖饭',    emoji:'🍅',cuisine:'家常',main:'番茄炒蛋',staple:'米饭',spice:0,oil:1,fried:false,price:18,flavors:['酸甜开胃','清淡养生'],ingredients:['鸡蛋','番茄']},
+  {id:4,  name:'青椒肉丝盖饭',    emoji:'🫑',cuisine:'家常',main:'青椒肉丝',staple:'米饭',spice:0,oil:2,fried:false,price:21,flavors:['咸鲜下饭'],ingredients:['猪肉','青椒']},
+  {id:5,  name:'鱼香肉丝盖饭',    emoji:'🥢',cuisine:'川菜',main:'鱼香肉丝',staple:'米饭',spice:1,oil:2,fried:false,price:22,flavors:['酸甜开胃','咸鲜下饭'],ingredients:['猪肉','胡萝卜','木耳']},
+  {id:6,  name:'麻婆豆腐盖饭',    emoji:'🥘',cuisine:'川菜',main:'麻婆豆腐',staple:'米饭',spice:3,oil:2,fried:false,price:20,flavors:['麻辣够味'],ingredients:['豆制品','牛肉','葱']},
+  {id:7,  name:'麻辣香锅配饭',    emoji:'🌶️',cuisine:'川菜',main:'麻辣香锅',staple:'米饭',spice:3,oil:3,fried:false,price:32,flavors:['麻辣够味'],ingredients:['猪肉','藕','土豆','香菜']},
+  {id:8,  name:'香辣鸡腿堡套餐',  emoji:'🍔',cuisine:'快餐',main:'鸡腿堡',  staple:null,  spice:1,oil:3,fried:true, price:30,flavors:['咸鲜下饭'],ingredients:['鸡肉']},
+  {id:9,  name:'香辣炸鸡便当',    emoji:'🍗',cuisine:'快餐',main:'炸鸡',    staple:'米饭',spice:1,oil:3,fried:true, price:28,flavors:['咸鲜下饭'],ingredients:['鸡肉']},
+  {id:10, name:'日式肥牛饭',      emoji:'🍱',cuisine:'日韩',main:'肥牛',    staple:'米饭',spice:0,oil:2,fried:false,price:32,flavors:['酱香浓郁','咸鲜下饭'],ingredients:['牛肉','洋葱']},
+  {id:11, name:'照烧鸡腿饭',      emoji:'🍗',cuisine:'日韩',main:'照烧鸡',  staple:'米饭',spice:0,oil:2,fried:false,price:28,flavors:['酱香浓郁','酸甜开胃'],ingredients:['鸡肉','洋葱']},
+  {id:12, name:'咖喱鸡肉饭',      emoji:'🍛',cuisine:'日韩',main:'咖喱鸡',  staple:'米饭',spice:1,oil:2,fried:false,price:26,flavors:['异域咖喱'],ingredients:['鸡肉','土豆','胡萝卜']},
+  {id:13, name:'韩式拌饭',        emoji:'🥗',cuisine:'日韩',main:'拌饭',    staple:'米饭',spice:1,oil:2,fried:false,price:27,flavors:['酸辣过瘾','咸鲜下饭'],ingredients:['牛肉','鸡蛋','蔬菜']},
+  {id:14, name:'酸菜鱼配饭',      emoji:'🐟',cuisine:'川菜',main:'酸菜鱼',  staple:'米饭',spice:2,oil:2,fried:false,price:36,flavors:['酸辣过瘾'],ingredients:['海鲜','酸菜']},
+  {id:15, name:'清蒸鲈鱼饭',      emoji:'🐟',cuisine:'粤菜',main:'蒸鱼',    staple:'米饭',spice:0,oil:1,fried:false,price:38,flavors:['清淡养生'],ingredients:['海鲜','姜','葱']},
+  {id:16, name:'白切鸡饭',        emoji:'🍗',cuisine:'粤菜',main:'白切鸡',  staple:'米饭',spice:0,oil:1,fried:false,price:28,flavors:['清淡养生'],ingredients:['鸡肉','姜','葱']},
+  {id:17, name:'红烧牛肉面',      emoji:'🍜',cuisine:'面食',main:'红烧牛肉',staple:'面',  spice:1,oil:2,fried:false,price:26,flavors:['酱香浓郁','咸鲜下饭'],ingredients:['牛肉','香菜','葱']},
+  {id:18, name:'兰州清汤牛肉面',  emoji:'🍜',cuisine:'西北',main:'清汤牛肉',staple:'面',  spice:1,oil:1,fried:false,price:22,flavors:['清淡养生','咸鲜下饭'],ingredients:['牛肉','萝卜','香菜','葱']},
+  {id:19, name:'葱油拌面',        emoji:'🍝',cuisine:'面食',main:'葱油拌面',staple:'面',  spice:0,oil:2,fried:false,price:16,flavors:['葱香扑鼻','咸鲜下饭'],ingredients:['葱']},
+  {id:20, name:'沙县飘香拌面',    emoji:'🍝',cuisine:'面食',main:'飘香拌面',staple:'面',  spice:0,oil:2,fried:false,price:15,flavors:['酱香浓郁'],ingredients:['花生']},
+  {id:21, name:'鲜虾云吞面',      emoji:'🍜',cuisine:'粤菜',main:'云吞',    staple:'面',  spice:0,oil:1,fried:false,price:25,flavors:['清淡养生'],ingredients:['海鲜','猪肉','葱']},
+  {id:22, name:'扬州炒饭',        emoji:'🍚',cuisine:'家常',main:'扬州炒饭',staple:'米饭',spice:0,oil:2,fried:false,price:22,flavors:['咸鲜下饭'],ingredients:['鸡蛋','海鲜','猪肉','豌豆']},
+  {id:23, name:'腊味煲仔饭',      emoji:'🍚',cuisine:'粤菜',main:'煲仔饭',  staple:'米饭',spice:0,oil:2,fried:false,price:30,flavors:['酱香浓郁'],ingredients:['猪肉','青菜']},
+  {id:24, name:'黑椒牛柳饭',      emoji:'🥩',cuisine:'家常',main:'黑椒牛柳',staple:'米饭',spice:1,oil:2,fried:false,price:33,flavors:['咸鲜下饭'],ingredients:['牛肉','洋葱']},
+  {id:25, name:'水煮牛肉饭',      emoji:'🌶️',cuisine:'川菜',main:'水煮牛肉',staple:'米饭',spice:3,oil:3,fried:false,price:34,flavors:['麻辣够味'],ingredients:['牛肉','豆芽','蒜']},
+  {id:26, name:'鸡胸藜麦沙拉碗',  emoji:'🥗',cuisine:'轻食',main:'鸡胸沙拉',staple:'杂粮饭',spice:0,oil:1,fried:false,cold:true,price:29,flavors:['清淡养生'],ingredients:['鸡肉','生菜','番茄','玉米']},
+  {id:27, name:'牛油果虾仁全麦碗',emoji:'🥑',cuisine:'轻食',main:'虾仁沙拉',staple:'全麦面包',spice:0,oil:1,fried:false,cold:true,price:35,flavors:['清淡养生'],ingredients:['海鲜','牛油果','鸡蛋']},
+  {id:28, name:'白菜猪肉水饺',    emoji:'🥟',cuisine:'西北',main:'饺子',    staple:'饺子',spice:0,oil:2,fried:false,price:20,flavors:['咸鲜下饭'],ingredients:['猪肉','白菜']},
+  {id:29, name:'肉夹馍配凉皮',    emoji:'🌮',cuisine:'西北',main:'肉夹馍',  staple:'馍',  spice:1,oil:2,fried:false,price:21,flavors:['酸辣过瘾','咸鲜下饭'],ingredients:['猪肉','香菜']},
+  {id:30, name:'螺蛳粉',          emoji:'🍜',cuisine:'面食',main:'螺蛳粉',  staple:'粉',  spice:2,oil:2,fried:false,price:20,flavors:['酸辣过瘾'],ingredients:['花生','豆制品','酸笋']},
+  {id:31, name:'皮蛋瘦肉粥套餐',  emoji:'🥣',cuisine:'粤菜',main:'粥',      staple:'粥',  spice:0,oil:1,fried:false,price:19,flavors:['清淡养生'],ingredients:['鸡蛋','猪肉','葱']},
+  {id:32, name:'卤肉饭',          emoji:'🍚',cuisine:'家常',main:'卤肉',    staple:'米饭',spice:0,oil:2,fried:false,price:23,flavors:['酱香浓郁','咸鲜下饭'],ingredients:['猪肉','洋葱']},
+  {id:33, name:'广式叉烧饭',      emoji:'🍖',cuisine:'粤菜',main:'叉烧',    staple:'米饭',spice:0,oil:2,fried:false,price:28,flavors:['酱香浓郁','酸甜开胃'],ingredients:['猪肉']},
+  {id:34, name:'茄子肉丁盖饭',    emoji:'🍆',cuisine:'家常',main:'茄子肉丁',staple:'米饭',spice:0,oil:2,fried:false,price:22,flavors:['酱香浓郁','咸鲜下饭'],ingredients:['猪肉','茄子','蒜']},
+  {id:35, name:'香干芹菜肉丝饭',  emoji:'🥬',cuisine:'家常',main:'香干芹菜',staple:'米饭',spice:0,oil:2,fried:false,price:21,flavors:['咸鲜下饭','清淡养生'],ingredients:['豆制品','猪肉','芹菜']},
+  {id:36, name:'宫保鸡丁饭',      emoji:'🥜',cuisine:'川菜',main:'宫保鸡',  staple:'米饭',spice:2,oil:2,fried:false,price:24,flavors:['酸辣过瘾'],ingredients:['鸡肉','花生','黄瓜']},
+  {id:37, name:'牛腩汤粉',        emoji:'🍜',cuisine:'粤菜',main:'牛腩粉',  staple:'粉',  spice:0,oil:1,fried:false,price:26,flavors:['清淡养生','咸鲜下饭'],ingredients:['牛肉','葱']},
+  {id:38, name:'阳春面',          emoji:'🍜',cuisine:'面食',main:'阳春面',  staple:'面',  spice:0,oil:1,fried:false,price:14,flavors:['清淡养生','葱香扑鼻'],ingredients:['葱','鸡蛋']},
+  {id:39, name:'滑蛋虾仁饭',      emoji:'🍤',cuisine:'粤菜',main:'滑蛋虾仁',staple:'米饭',spice:0,oil:2,fried:false,price:30,flavors:['清淡养生','咸鲜下饭'],ingredients:['海鲜','鸡蛋']},
+  {id:40, name:'奥尔良烤鸡腿饭',  emoji:'🍗',cuisine:'快餐',main:'烤鸡腿',  staple:'米饭',spice:0,oil:2,fried:false,price:26,flavors:['咸鲜下饭'],ingredients:['鸡肉']},
+  {id:41, name:'土豆炖牛腩饭',    emoji:'🥔',cuisine:'家常',main:'土豆牛腩',staple:'米饭',spice:0,oil:2,fried:false,price:30,flavors:['酱香浓郁','清淡养生'],ingredients:['牛肉','土豆','胡萝卜']},
+  {id:42, name:'地三鲜盖饭',      emoji:'🍆',cuisine:'家常',main:'地三鲜',  staple:'米饭',spice:0,oil:2,fried:false,price:19,flavors:['咸鲜下饭'],ingredients:['茄子','土豆','青椒','蒜']},
+  {id:43, name:'香辣牛肉粉',      emoji:'🌶️',cuisine:'面食',main:'香辣牛肉粉',staple:'粉',spice:2,oil:2,fried:false,price:24,flavors:['酸辣过瘾'],ingredients:['牛肉','花生','香菜']},
+  {id:44, name:'爆炒猪肝盖饭',    emoji:'🥘',cuisine:'家常',main:'猪肝',    staple:'米饭',spice:1,oil:3,fried:false,price:22,flavors:['咸鲜下饭'],ingredients:['内脏','洋葱','蒜']}
+];
+
+/* ================= 状态与持久化 ================= */
+const KEY = 'fanlai.v1';
+const day = 86400000;
+const dateKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const todayKey = () => dateKey(new Date());
+
+let state = load();
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  // 首次：预置两天演示历史，让"避开昨天"立刻可感知
+  const now = new Date();
+  return {
+    prefs:null,
+    history:[
+      {date:dateKey(new Date(now-day*2)), id:3,  name:'番茄炒蛋盖饭', main:'番茄炒蛋', emoji:'🍅'},
+      {date:dateKey(new Date(now-day)),   id:1,  name:'黄焖鸡米饭',   main:'黄焖鸡',   emoji:'🍲'}
+    ],
+    // 今日临时需求（自然语言解析出的条件，次日自动失效）
+    todayMods:{date:todayKey(), tokens:[]},
+    // 今日候选池：合条件菜品的固定排序，换一个=在池内往后翻
+    pool:null
+  };
+}
+function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+
+/* ================= 自然语言需求理解（mock NLU） =================
+   把"想吃面、20块以内、不要鸡、来点辣的"解析成结构化的今日临时条件。
+   解析结果对用户完全透明（UI 上可逐条删除），演示"AI 如何听懂需求"。 */
+const ING_KEYS = ['鸡蛋','鸡肉','豆制品','豆腐','豆干','香菜','花生','内脏','牛肉','羊肉','猪肉','海鲜','鸡','牛','羊','猪','鱼','虾','蟹','蛋','葱','姜','蒜','肝'];
+const ING_MAP = {鸡蛋:['鸡蛋'],鸡肉:['鸡肉'],鸡:['鸡肉'],牛:['牛肉'],牛肉:['牛肉'],羊:['羊肉'],羊肉:['羊肉'],猪:['猪肉'],猪肉:['猪肉'],鱼:['海鲜'],虾:['海鲜'],蟹:['海鲜'],海鲜:['海鲜'],蛋:['鸡蛋'],香菜:['香菜'],葱:['葱'],姜:['姜'],蒜:['蒜'],花生:['花生'],豆腐:['豆制品'],豆干:['豆制品'],豆制品:['豆制品'],内脏:['内脏'],肝:['内脏']};
+const STAPLE_MAP = [['米饭','米饭'],['盖饭','米饭'],['面条','面'],['面','面'],['米粉','粉'],['粉','粉'],['粥','粥'],['水饺','饺子'],['饺子','饺子'],['馍','馍']];
+const FLAVOR_MAP = [['咖喱',['异域咖喱'],'咖喱口'],['葱香',['葱香扑鼻'],'葱香口'],['酸辣',['酸辣过瘾'],'酸辣口'],['酸甜',['酸甜开胃'],'酸甜口'],['酸',['酸辣过瘾','酸甜开胃'],'酸口开胃'],['辣',['麻辣够味','酸辣过瘾'],'辣口'],['甜',['酸甜开胃'],'甜口'],['清淡',['清淡养生'],'清淡口'],['清爽',['清淡养生'],'清淡口'],['酱香',['酱香浓郁'],'酱香口'],['咸鲜',['咸鲜下饭'],'咸鲜口']];
+const MEAT_INGS = new Set(['鸡肉','牛肉','羊肉','猪肉','海鲜','鸡蛋','内脏']);
+
+function matchIngredient(seg){
+  for(const k of ING_KEYS){
+    if(seg.includes(k)) return {raw:k, std:ING_MAP[k]};
+  }
+  return null;
+}
+function matchStaple(seg){
+  for(const [word, std] of STAPLE_MAP){ if(seg.includes(word)) return std; }
+  return null;
+}
+function matchFlavor(seg){
+  for(const [word, std, label] of FLAVOR_MAP){ if(seg.includes(word)) return {std, label}; }
+  return null;
+}
+
+function parseUtterance(raw){
+  const text = (raw||'').replace(/\s+/g,'').replace(/[，,。！!？?；;、~～]/g,' ').trim();
+  if(!text) return [];
+  const tokens = [];
+  const has = type => tokens.some(t => t.type === type);
+  const hasMood = v => tokens.some(t => t.type==='mood' && t.value===v);
+  const add = t => {
+    if(['exclude','want'].includes(t.type)){
+      if(!tokens.some(x => x.type===t.type && x.label===t.label)) tokens.push(t);
+    }else if(t.type==='mood'){
+      // 发散方向可多个共存（如"热乎的、重口一点"），同方向去重
+      if(!tokens.some(x => x.type==='mood' && x.value===t.value)) tokens.push(t);
+    }else if(!has(t.type)){
+      tokens.push(t);
+    }
+  };
+
+  // 发散方向（mood）：只参与排序加权，不收窄候选池——"没想法时点一点"的入口
+  const MOODS = [
+    ['soup',    /热乎|暖胃|暖和|带汤|汤面|汤粉|热汤|喝点热|来碗汤|暖一暖|吃点热|来点热|想.*热的|来份热/, '热乎带汤的'],
+    ['bold',    /重口|过瘾|刺激|解馋|嘴馋|够味|无辣不欢|来劲|重口味|爽一点/, '重口过瘾的'],
+    ['light',   /清爽|不腻|清淡|无负担|刮油|素净|舒服点/, '清爽不腻的'],
+    ['rice',    /下饭|管饱|顶饿|顶饱|扛饿|硬菜|吃饱/, '下饭管饱的'],
+    ['explore', /没吃过|新鲜|尝鲜|换个花样|换花样|惊喜|随缘|随便|都行/, '来点新鲜的'],
+    ['value',   /实惠|划算|平价|性价比|便宜点|省钱/, '实惠一点的']
+  ];
+  MOODS.forEach(([value, re, label]) => { if(re.test(text)) add({type:'mood', value, label}); });
+
+  // 预算（明确数字永远是硬约束；"便宜/省钱"在已表达"实惠"方向时只做软加权）
+  let m = text.match(/(\d{1,3})\s*(?:块|元|块钱|刀)?(?:钱)?(?:以内|以下|之内|封顶)/) || text.match(/(?:预算|花|控制在|不超过|小于|≤|<=)\s*(\d{1,3})/);
+  if(m) add({type:'price', value:+m[1], label:`¥${m[1]}以内`});
+  else if(/便宜|省钱|省点|性价比/.test(text) && !hasMood('value')) add({type:'price', value:20, label:'便宜点 ≤¥20'});
+
+  // 辣度
+  if(/微辣/.test(text)) add({type:'spice', value:1, label:'来点微辣'});
+  else if(/不要辣|不辣|免辣|忌辣/.test(text)) add({type:'spice', value:0, label:'不要辣'});
+  else if(/辣/.test(text)) add({type:'spice', value:2, label:'想吃点辣的'});
+
+  // 少油加严 / 素 / 凉
+  if(/别太油|不要油|少油|别炸|不要炸|拒绝炸|忌油/.test(text)) add({type:'strictOil', label:'少油加严'});
+  if(/吃素|素一点|素点|全素|素食|减脂|减肥|轻食|沙拉/.test(text)) add({type:'veg', label:'吃素一点'});
+  // 只在明确指向食物时认"凉"，避免"今天好冷"被误判
+  if(/凉皮|凉面|凉拌|冷淘|吃口凉|想吃凉|来点凉|来份凉|凉的|冷的/.test(text)) add({type:'cold', label:'吃口凉的'});
+
+  // 否定段：不要/不吃/忌/别……（忌口）
+  const negSegs = (text.match(/(?:不要|不吃|不想吃|忌口|忌|别放|别来|别吃|拒绝|不想碰)([^ ]{1,8})/g)||[])
+    .map(s => s.replace(/^(不要|不吃|不想吃|忌口|忌|别放|别来|别吃|拒绝|不想碰)/,''));
+  negSegs.forEach(seg => {
+    if(/辣/.test(seg)) return;                       // 已由辣度处理
+    if(/油|炸/.test(seg)){ add({type:'strictOil', label:'少油加严'}); return; }
+    const ing = matchIngredient(seg);
+    if(ing) add({type:'exclude', value:ing.std, label:`不吃${ing.raw}`});
+  });
+
+  // 肯定段：想吃/来点/整点……（主食、食材、风味）
+  const posSegs = (text.match(/(?:想吃|来点|来份|整点|搞点|想要|馋|安排|来个)([^ ]{1,8})/g)||[])
+    .map(s => s.replace(/^(想吃|来点|来份|整点|搞点|想要|馋|安排|来个)/,''));
+  posSegs.forEach(seg => {
+    const staple = matchStaple(seg);
+    if(staple){ add({type:'staple', value:staple, label:`想吃${staple}`}); }
+    const ing = matchIngredient(seg);
+    // "鸡蛋"命中食材时不再误判为"鸡"
+    if(ing && !(staple && seg.length <= 2)) add({type:'want', value:ing.std, raw:ing.raw, label:`想吃${ing.raw}`});
+    const fl = matchFlavor(seg);
+    // 宽泛的"辣"已由辣度档位表达，不再叠加辣味硬过滤；明确说"酸辣"仍保留
+    // 已表达"清爽不腻"发散方向时，"清淡"只做软加权而非硬过滤
+    if(fl && fl.label !== '辣口' && !hasMood('light') && !tokens.some(t=>t.type==='want' && t.label===fl.label)) add({type:'want', flavors:fl.std, label:fl.label});
+  });
+
+  // 独立风味词（不在"想吃"短语里也认，如"今天来点开胃的，酸甜口"）
+  const flAll = matchFlavor(text);
+  if(flAll && flAll.label !== '辣口' && !hasMood('light') && !tokens.some(t=>t.label===flAll.label || (t.type==='want' && t.flavors && t.flavors.some(f=>flAll.std.includes(f))))) {
+    add({type:'want', flavors:flAll.std, label:flAll.label});
+  }
+  return tokens;
+}
+
+/* ================= DeepSeek NLU（真实自然语言 → tokens） =================
+   数据格式约定（模型只允许输出该 JSON，字段全部经过白名单清洗）：
+   {
+     "heard": "≤20字复述用户今天的想法",
+     "tokens": [
+       {"type":"mood","value":"soup|bold|light|rice|explore|value"},
+       {"type":"price","value":20},
+       {"type":"spice","value":0|1|2},                       // 0不辣 1微辣 2中辣+
+       {"type":"staple","value":"米饭|面|粉|粥|饺子|馍"},
+       {"type":"exclude","value":["鸡肉"], "label":"不吃鸡"}, // 硬忌口
+       {"type":"want","value":["牛肉"],"flavors":["酱香浓郁"],"raw":"牛肉","label":"想吃牛肉"},
+       {"type":"veg"},{"type":"cold"},{"type":"strictOil"}
+     ]
+   }
+   mood 只做排序加权；其余为硬约束。与本地 mock 解析器输出同构。 */
+const AI_CFG = {
+  endpoint: 'https://api.deepseek.com/chat/completions',
+  key: 'sk-5989383364ab46b7976671bfc5889878',
+  model: 'deepseek-chat'
+};
+try{ Object.assign(AI_CFG, JSON.parse(localStorage.getItem('fanlai.ai')||'{}')); }catch(e){}
+
+const MOOD_LABEL = {soup:'热乎带汤的', bold:'重口过瘾的', light:'清爽不腻的', rice:'下饭管饱的', explore:'来点新鲜的', value:'实惠一点的'};
+const STAPLE_SYN = {面条:'面',拉面:'面',面:'面',米粉:'粉',粉:'粉',米饭:'米饭',盖饭:'米饭',粥:'粥',水饺:'饺子',饺子:'饺子',馍:'馍'};
+const SPICE_TOK_LABEL = ['不要辣','来点微辣','想吃点辣的'];
+
+function buildNLUSys(){
+  return `你是午饭推荐助手「饭来」的意图解析模块。把用户的中文口语解析为严格 JSON，禁止输出 JSON 以外的任何内容、不要使用代码块。
+输出格式：{"heard":"不超过20字的中文复述","tokens":[...]}
+token 类型（只允许这些 type）：
+1. mood 当下感觉/方向，value 取值：soup热乎带汤、bold重口过瘾、light清爽不腻清淡、rice下饭管饱、explore尝鲜/随便/换花样、value实惠便宜
+2. price 明确数字预算：{"type":"price","value":数字}
+3. spice：{"type":"spice","value":0|1|2}（0不辣，1微辣，2中辣及以上）
+4. staple：{"type":"staple","value":"米饭|面|粉|粥|饺子|馍"}
+5. exclude 明确不吃：{"type":"exclude","value":[...],"label":"不吃X"}，value 只能取自：${EXCLUDES.join('、')}
+6. want 明确想吃：{"type":"want","value":[食材],"flavors":[风味],"raw":"关键词","label":"想吃X"}；食材只能取自上一条枚举，风味只能取：${FLAVORS.join('、')}
+7. veg 吃素/减脂轻食；cold 想吃凉的；strictOil 明确少油/别炸
+规则：只解析用户真实表达，不要臆测；mood 可有多个；注意"天气冷、想吃热的"是 soup 不是 cold；语义不清时 tokens 返回空数组。`;
+}
+
+// 白名单清洗：模型输出不可信，只保留枚举内的合法值
+function normAITokens(arr){
+  const out = [];
+  const push = t => { if(!out.some(x => x.type===t.type && x.label===t.label)) out.push(t); };
+  for(const t of (Array.isArray(arr)?arr:[])){
+    if(!t || typeof t !== 'object') continue;
+    if(t.type === 'mood' && MOOD_LABEL[t.value]){
+      push({type:'mood', value:t.value, label:MOOD_LABEL[t.value]});
+    }else if(t.type === 'price'){
+      const v = Math.round(Number(t.value));
+      if(v >= 5 && v <= 200) push({type:'price', value:v, label:`¥${v}以内`});
+    }else if(t.type === 'spice'){
+      const v = [0,1,2].includes(+t.value) ? +t.value : null;
+      if(v !== null) push({type:'spice', value:v, label:SPICE_TOK_LABEL[v]});
+    }else if(t.type === 'staple'){
+      const v = STAPLE_SYN[String(t.value||'').trim()];
+      if(v) push({type:'staple', value:v, label:`想吃${v}`});
+    }else if(t.type === 'exclude'){
+      const vals = (Array.isArray(t.value)?t.value:[]).map(x=>String(x).trim()).filter(x=>EXCLUDES.includes(x));
+      if(vals.length) push({type:'exclude', value:[...new Set(vals)], label:`不吃${vals.join('、')}`});
+    }else if(t.type === 'want'){
+      const vals = (Array.isArray(t.value)?t.value:[]).map(x=>String(x).trim()).filter(x=>EXCLUDES.includes(x));
+      const fls  = (Array.isArray(t.flavors)?t.flavors:[]).map(x=>String(x).trim()).filter(x=>FLAVORS.includes(x));
+      const raw  = (typeof t.raw==='string' && t.raw.trim().length<=6) ? t.raw.trim() : null;
+      if(vals.length || fls.length || raw){
+        const parts = [...new Set([...vals, ...fls])];
+        push({type:'want', value:vals.length?[...new Set(vals)]:undefined, flavors:fls.length?[...new Set(fls)]:undefined,
+              raw:raw||undefined, label:(typeof t.label==='string'&&t.label.trim())?t.label.trim().slice(0,10):`想吃${parts.join('、')||raw}`});
+      }
+    }else if(['veg','cold','strictOil'].includes(t.type)){
+      const labels = {veg:'吃素一点', cold:'吃口凉的', strictOil:'少油加严'};
+      push({type:t.type, label:labels[t.type]});
+    }
+  }
+  return out;
+}
+
+async function aiParse(rawText){
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 12000);
+  let res;
+  try{
+    res = await fetch(AI_CFG.endpoint, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${AI_CFG.key}`},
+      body: JSON.stringify({
+        model: AI_CFG.model,
+        response_format: {type:'json_object'},
+        temperature: 0.2,
+        messages: [
+          {role:'system', content: buildNLUSys()},
+          {role:'user', content: rawText}
+        ]
+      }),
+      signal: ctrl.signal
+    });
+  }finally{ clearTimeout(timer); }
+  if(!res.ok) throw new Error('AI HTTP '+res.status);
+  const data = await res.json();
+  const content = data?.choices?.[0]?.message?.content || '';
+  let json;
+  try{ json = JSON.parse(content); }catch(e){ throw new Error('AI 返回不是 JSON'); }
+  const tokens = normAITokens(json.tokens);
+  const heard = typeof json.heard === 'string' ? json.heard.trim().slice(0,30) : '';
+  return {tokens, heard};
+}
+
+// 今日临时需求（跨天自动清空）
+function activeMods(){
+  const tm = state.todayMods;
+  if(!tm || tm.date !== todayKey()) return {tokens:[], price:null, spice:null, excludes:[], wants:[], moods:[], staple:null, veg:false, cold:false, strictOil:false};
+  const m = {tokens:tm.tokens, price:null, spice:null, excludes:[], wants:[], moods:[], staple:null, veg:false, cold:false, strictOil:false};
+  tm.tokens.forEach(t => {
+    if(t.type==='price') m.price = t.value;
+    else if(t.type==='spice') m.spice = t.value;
+    else if(t.type==='exclude') t.value.forEach(v => { if(!m.excludes.includes(v)) m.excludes.push(v); });
+    else if(t.type==='want') m.wants.push(t);
+    else if(t.type==='mood') m.moods.push(t);
+    else if(t.type==='staple') m.staple = t.value;
+    else if(t.type==='veg') m.veg = true;
+    else if(t.type==='cold') m.cold = true;
+    else if(t.type==='strictOil') m.strictOil = true;
+  });
+  return m;
+}
+
+/* ================= 推荐引擎 ================= */
+function spiceOk(d, level){
+  if(level === 0) return d.spice === 0;
+  if(level === 1) return d.spice <= 2;
+  return true;
+}
+// 发散方向判定：带汤/热乎的锅物炖煲（干拌面不算）
+const SOUPY_STAPLES = new Set(['面','粉','粥']);
+function isSoupy(d){
+  if(SOUPY_STAPLES.has(d.staple) && !/拌/.test(d.name)) return true;
+  return /汤|煲|炖|焖|锅|粥/.test(d.name);
+}
+// 以日期为种子的稳定伪随机：让"尝鲜"每天翻出不同的惊喜款，同一次池构建内排序锁定
+function dayHash(n){
+  const s = todayKey() + ':' + n;
+  let h = 7;
+  for(const c of s) h = (h*31 + c.charCodeAt(0)) >>> 0;
+  return h;
+}
+// 硬过滤 + 软打分。返回 {scored, yest, total}
+function getCandidates(){
+  const p = state.prefs;
+  const mods = activeMods();
+  const yest = state.history.find(h => h.date === dateKey(new Date(Date.now()-day)));
+  const spiceLevel = mods.spice !== null ? mods.spice : p.spice;
+  const list = DISHES.filter(d => {
+    if(d.ingredients.some(i => p.excludes.includes(i))) return false;
+    if(d.ingredients.some(i => mods.excludes.includes(i))) return false;
+    if(p.lessOil && (d.fried || d.oil >= 3)) return false;
+    if(mods.strictOil && (d.fried || d.oil > 1)) return false;
+    if(p.needStaple && !d.staple) return false;
+    if(!spiceOk(d, spiceLevel)) return false;
+    if(yest && d.main === yest.main) return false;
+    if(mods.price !== null && d.price > mods.price) return false;
+    if(mods.staple && d.staple !== mods.staple) return false;
+    if(mods.veg && d.ingredients.some(i => MEAT_INGS.has(i))) return false;
+    if(mods.cold && !d.cold) return false;
+    // "想吃X"是明确意图：食材/风味/菜名至少命中一个（OR 关系）
+    if(mods.wants.length && !mods.wants.some(w =>
+      (w.flavors && d.flavors.some(f => w.flavors.includes(f)))
+      || (w.value && d.ingredients.some(i => w.value.includes(i)))
+      || (w.raw && (d.name.includes(w.raw) || d.main.includes(w.raw)))
+    )) return false;
+    return true;
+  });
+  // 打分（固定随机项仅用于同分微扰，排序在一次池构建内锁定）
+  const moodVals = mods.moods.map(t => t.value);
+  const scored = list.map(d => {
+    let s = 50 + (d.id % 5) * 1.2;
+    // 用户当下已表达方向时，档案口味退为次级信号（15→8），让"今天想吃啥"优先
+    const pfBoost = moodVals.length ? 8 : 15;
+    d.flavors.forEach(f => { if(p.flavors.includes(f)) s += pfBoost; });
+    if(spiceLevel === 1 && d.spice === 1) s += 7;
+    if(spiceLevel === 2 && d.spice >= 2) s += 9;
+    if(p.lessOil && d.oil === 1) s += 4;
+    mods.wants.forEach(w => {
+      if(w.flavors && d.flavors.some(f => w.flavors.includes(f))) s += 14;
+      if(w.value && d.ingredients.some(i => w.value.includes(i))) s += 18;
+      if(w.raw && (d.name.includes(w.raw) || d.main.includes(w.raw))) s += 18;
+    });
+    if(mods.staple) s += 5;
+    if(mods.veg && d.cuisine === '轻食') s += 4;
+    // 发散方向：只改排序，不改候选池。当下意图是最高信号，权重需压过档案微调
+    moodVals.forEach(v => {
+      if(v === 'soup'){
+        if(isSoupy(d)) s += 22;
+        else if(SOUPY_STAPLES.has(d.staple)) s += 7;
+      }else if(v === 'bold'){
+        if(d.spice >= 2) s += 26;
+        if(d.oil >= 3) s += 8;
+        if(d.flavors.some(f => f.includes('辣'))) s += 9;
+      }else if(v === 'light'){
+        if(!d.fried && d.oil === 1) s += 18;
+        if(d.spice === 0) s += 5;
+        if(d.flavors.includes('清淡养生')) s += 11;
+        if(d.cuisine === '轻食') s += 7;
+      }else if(v === 'rice'){
+        if(d.staple === '米饭') s += 18;
+        if(d.flavors.some(f => f === '咸鲜下饭' || f === '酱香浓郁')) s += 9;
+      }else if(v === 'value'){
+        if(d.price <= 20) s += 27;
+        else if(d.price <= 25) s += 8;
+      }else if(v === 'explore'){
+        if(!state.history.some(h => h.main === d.main)) s += 14;
+        s += (dayHash(d.id*3+1) % 100) / 9;    // 每日不同的惊喜扰动（0~11）
+      }
+    });
+    state.history.slice(0,3).forEach((h,i)=>{ if(h.main === d.main) s -= 42 - i*8; });
+    return {d, s};
+  }).sort((a,b)=>b.s-a.s);
+  return {scored, yest, mods, total:scored.length};
+}
+
+// 生成"为什么推荐它"的自然语言理由
+function buildReasons(d, yest, rank, total, mods){
+  const p = state.prefs, out = [];
+  mods = mods || activeMods();
+  // 你当下的发散方向最先回应（软偏好：说明排序，不说"过滤"）
+  const MOOD_REASON = {
+    soup:    '你想吃口热乎的，带汤的面、粉和炖煲给你排前面',
+    bold:    '今天想过瘾，重辣重口的菜给你往前排了',
+    light:   '想吃清爽不腻的，清淡轻油的优先',
+    rice:    '要下饭管饱，米饭配咸香硬菜优先',
+    value:   '想吃得实惠，20 元上下的优先',
+    explore: '想尝鲜，最近没吃过的和今天的惊喜款往前排'
+  };
+  mods.moods.slice(0,2).forEach(t => {
+    // 只有这道确实贴合方向才说，翻后排时不硬夸
+    const hit = {
+      soup: isSoupy(d),
+      bold: d.spice >= 2 || d.oil >= 3,
+      light: (!d.fried && d.oil === 1) || d.flavors.includes('清淡养生'),
+      rice: d.staple === '米饭',
+      value: d.price <= 25,
+      explore: !state.history.some(h => h.main === d.main)
+    }[t.value];
+    if(hit) out.push(MOOD_REASON[t.value]);
+  });
+  // 明确的硬需求随后回应
+  mods.wants.forEach(w => {
+    const hit = (w.flavors && d.flavors.some(f => w.flavors.includes(f)))
+      || (w.value && d.ingredients.some(i => w.value.includes(i)))
+      || (w.raw && (d.name.includes(w.raw) || d.main.includes(w.raw)));
+    if(hit) out.push(`你刚说「${w.label}」，这道正合你意`);
+  });
+  if(mods.staple && d.staple === mods.staple) out.push(`你想吃${mods.staple}，这道的主食正好是${mods.staple}`);
+  if(mods.price !== null) out.push(`¥${d.price}，在你说的 ¥${mods.price} 预算内`);
+  if(mods.veg && !d.ingredients.some(i => MEAT_INGS.has(i))) out.push('全素无肉，符合你今天的口味');
+  if(mods.cold && d.cold) out.push('凉口清爽，天热吃着不腻');
+  if(mods.strictOil) out.push(d.oil === 1 ? '按你说的挑了轻油做法' : '');
+  // 候选池里的真实位置
+  if(rank === 0 && total > 1) out.push(`今天有 ${total} 道菜全部合你条件，它的口味匹配排第 1`);
+  else if(rank > 0) out.push(`这是第 ${rank+1} / ${total} 个选择，前面几道你没看上`);
+  // 长期偏好
+  const hitFlavor = d.flavors.find(f => p.flavors.includes(f));
+  if(hitFlavor && !mods.wants.some(w => w.flavors && w.flavors.includes(hitFlavor))) out.push(`「${hitFlavor}」正对你口味档案里的偏好`);
+  const allExclude = [...new Set([...p.excludes, ...mods.excludes])];
+  if(allExclude.length) out.push(`已避开你不吃的 ${allExclude.slice(0,3).join('、')}${allExclude.length>3?' 等':''}`);
+  if(yest) out.push([`昨天吃的是「${yest.name.replace(/（.*|\(.*|配饭|盖饭|米饭|套餐/g,'').trim() || yest.name}」，今天帮你换个花样`, 'warn']);
+  if(p.lessOil && !mods.strictOil) out.push(d.fried ? '' : `非油炸 · ${d.oil===1?'轻油做法':'用油量适中'}，下午不容易犯困`);
+  if(p.needStaple && d.staple && !mods.staple) out.push(`自带${d.staple}当主食，管饱到下班`);
+  return out.filter(Boolean).slice(0,5);
+}
+
+// 展示用匹配度：能进候选池说明硬条件全过，排名越靠前匹配越高，有真实梯度
+function matchScore(d, rank){
+  const p = state.prefs;
+  let m = 86;
+  m += d.flavors.filter(f => p.flavors.includes(f)).length * 3;
+  if(p.lessOil && d.oil === 1) m += 2;
+  m += Math.max(0, 5 - (rank||0) * 2);
+  return Math.max(66, Math.min(97, m - (rank||0) * 2));
+}
+
+/* ================= DOM 与交互 ================= */
+const $ = s => document.querySelector(s);
+const zone = $('#card-zone');
+let currentDish = null, picking = false;
+
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._timer); t._timer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ---- 偏好 chips 渲染（引导页 + 抽屉共用） ---- */
+function renderChips(containerId, pool, selected, cls){
+  const c = document.getElementById(containerId);
+  c.innerHTML = pool.map(v => `<button class="chip ${cls||''} ${selected.includes(v)?'on':''}" data-v="${v}">${v}</button>`).join('');
+}
+function syncPrefsUI(){
+  const p = state.prefs || {spice:1,flavors:['咸鲜下饭','酱香浓郁'],excludes:['香菜','内脏'],lessOil:true,needStaple:true};
+  document.querySelectorAll('#seg-spice button,#seg-spice2 button').forEach(b => b.classList.toggle('on', +b.dataset.v === p.spice));
+  renderChips('chips-flavor', FLAVORS, p.flavors);
+  renderChips('chips-flavor2', FLAVORS, p.flavors);
+  renderChips('chips-exclude', EXCLUDES, p.excludes, 'red');
+  renderChips('chips-exclude2', EXCLUDES, p.excludes, 'red');
+  document.querySelectorAll('.switch').forEach(sw => sw.classList.toggle('on', !!p[sw.dataset.k]));
+}
+function readPrefsUI(root){
+  const q = s => root.querySelector(s);
+  return {
+    spice:+q('.seg .on').dataset.v,
+    flavors:[...root.querySelectorAll('#'+(root.id==='sheet-prefs'?'chips-flavor2':'chips-flavor')+' .on')].map(b=>b.dataset.v),
+    excludes:[...root.querySelectorAll('.chip.red.on')].map(b=>b.dataset.v),
+    lessOil:[...root.querySelectorAll('.switch')].find(s=>s.dataset.k==='lessOil').classList.contains('on'),
+    needStaple:[...root.querySelectorAll('.switch')].find(s=>s.dataset.k==='needStaple').classList.contains('on')
+  };
+}
+
+/* chip / seg / switch 事件（事件委托） */
+document.addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if(chip){ chip.classList.toggle('on'); return; }
+  const segBtn = e.target.closest('.seg button');
+  if(segBtn){
+    segBtn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+    segBtn.classList.add('on');
+    return;
+  }
+  const sw = e.target.closest('.switch');
+  if(sw){ sw.classList.toggle('on'); return; }
+  const close = e.target.closest('[data-close]');
+  if(close){ closeSheet(close.dataset.close); }
+});
+
+/* ---- 视图切换 ---- */
+function showView(id){
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active','leaving'));
+  $('#'+id).classList.add('active');
+}
+
+/* ---- 首页信息 ---- */
+function weekdayCN(d){return ['周日','周一','周二','周三','周四','周五','周六'][d.getDay()];}
+function calcStreak(){
+  const h = [...state.history].sort((a,b)=>b.date.localeCompare(a.date));
+  if(!h.length) return 0;
+  let n = 1;
+  for(let i=0;i<h.length-1;i++){ if(h[i].main !== h[i+1].main) n++; else break; }
+  return n;
+}
+function renderHome(){
+  const now = new Date();
+  $('#today-date').textContent = `${now.getMonth()+1}月${now.getDate()}日 · ${weekdayCN(now)}`;
+  const streak = calcStreak();
+  $('#streak-n').textContent = streak;
+  $('#sheet-streak').textContent = streak;
+  $('#history-badge').textContent = state.history.length;
+  renderTodayChips();
+  // 今天已确认？
+  const todays = state.history.find(h => h.date === todayKey());
+  if(todays){
+    const d = DISHES.find(x=>x.id===todays.id);
+    if(d){ const r = getCandidates(); currentDish = d; paintDish(d, buildReasons(d, r.yest, 0, 1, r.mods), true); }
+  } else {
+    showEmpty();
+  }
+  renderHistoryList();
+}
+
+/* ---- 今日临时需求（仅当天有效，与长期口味档案解耦） ---- */
+function renderTodayChips(){
+  const box = $('#today-chips');
+  if(!box) return;
+  const mods = activeMods();
+  if(!mods.tokens.length){ box.innerHTML=''; box.style.display='none'; return; }
+  box.style.display='flex';
+  const moodIdx = [], hardIdx = [];
+  mods.tokens.forEach((t,i) => (t.type === 'mood' ? moodIdx : hardIdx).push(i));
+  const chip = (i, mood) =>
+    `<button class="chip ${mood?'chip-mood':''}" data-i="${i}" title="点 × 删除这条${mood?'方向':'临时要求'}">${mods.tokens[i].label}<i>×</i></button>`;
+  let html = '';
+  if(moodIdx.length) html += `<span class="chips-label mood-label">今天的感觉</span>` + moodIdx.map(i=>chip(i,true)).join('');
+  if(hardIdx.length){
+    if(moodIdx.length) html += `<span class="chip-break"></span>`;
+    html += `<span class="chips-label">临时要求</span>` + hardIdx.map(i=>chip(i,false)).join('');
+  }
+  html += `<button class="chip chip-clear" id="chip-clear" title="清空全部">清空</button>`;
+  box.innerHTML = html;
+  box.querySelectorAll('.chip[data-i]').forEach(b => b.onclick = () => removeToken(+b.dataset.i));
+  $('#chip-clear').onclick = clearTodayMods;
+}
+function clearTodayMods(){
+  state.todayMods = {date:todayKey(), tokens:[]};
+  state.pool = null;
+  save();
+  renderTodayChips();
+  const todays = state.history.find(h => h.date === todayKey());
+  if(!todays) startPick();
+  toast('临时要求已清空，按你的长期口味重新筛');
+}
+function removeToken(i){
+  state.todayMods.tokens.splice(i,1);
+  state.pool = null;
+  save();
+  renderTodayChips();
+  const todays = state.history.find(h => h.date === todayKey());
+  if(!todays) startPick();
+}
+// 把一句话解析进今日条件；DeepSeek 优先，失败/为空时回退本地规则。
+// 标量条件（预算/辣度等）后说的覆盖先说的，忌口/想吃/方向按条累加
+let uttering = false;
+async function submitUtterance(){
+  const input = $('#ask-input');
+  const send = $('#ask-send');
+  const text = (input.value||'').trim();
+  if(!text || uttering) return;
+  if(!state.todayMods || state.todayMods.date !== todayKey()) state.todayMods = {date:todayKey(), tokens:[]};
+
+  uttering = true;
+  send.disabled = true;
+  send.textContent = '理解中';
+  let fresh = [], heard = '', viaAI = false, aiErr = '';
+  try{
+    const r = await aiParse(text);
+    if(r.tokens.length){ fresh = r.tokens; heard = r.heard; viaAI = true; }
+    else { fresh = parseUtterance(text); }   // AI 认为无语义时，再让本地规则试一次
+  }catch(e){
+    aiErr = String(e.message||e);
+    fresh = parseUtterance(text);            // 断网/超时/Key 失效 → 本地兜底
+  }
+  send.disabled = false;
+  send.textContent = '开筛';
+  uttering = false;
+  if(!fresh.length){
+    toast(viaAI === false && aiErr ? 'AI 没连上，这句本地也没听懂，换个说法？' : '这句没太听懂～试试"今天好冷，想吃点热乎的"');
+    return;
+  }
+  const merged = [...state.todayMods.tokens];
+  fresh.forEach(t => {
+    if(['exclude','want'].includes(t.type)){
+      if(!merged.some(x => x.type===t.type && x.label===t.label)) merged.push(t);
+    }else if(t.type === 'mood'){
+      // 发散方向累加（同方向去重），允许多个感觉并存
+      if(!merged.some(x => x.type==='mood' && x.value===t.value)) merged.push(t);
+    }else{
+      const i = merged.findIndex(x => x.type===t.type);
+      if(i >= 0) merged[i] = t; else merged.push(t);
+    }
+  });
+  state.todayMods.tokens = merged;
+  state.pool = null;
+  save();
+  input.value = '';
+  renderTodayChips();
+  toast(heard ? `听懂了：${heard}` : `听懂了：${fresh.map(t=>t.label).join('、')}`);
+  const todays = state.history.find(h => h.date === todayKey());
+  if(!todays) startPick();
+}
+
+function showEmpty(){
+  currentDish = null;
+  zone.innerHTML = `<div class="empty-card" id="empty-card">
+    <div class="bowl">🍱</div>
+    <h3>今天的午饭还没定</h3>
+    <p>没想法就点上方的「感觉」，我按方向给你排；有明确要求也可以直接说，比如<b style="color:var(--ink)">"想吃面、20 块以内、不要鸡"</b>，硬要求照样逐条照办。</p>
+    <div class="rules"><span>✓ 按口味匹配</span><span>✓ 硬忌口过滤</span><span>✓ 避开昨天主菜</span><span>✓ 少油少炸</span><span>✓ 带主食</span></div>
+  </div>`;
+  $('#home-actions').style.display='none';
+  $('#empty-actions').style.display='flex';
+  $('#empty-actions').innerHTML = '<button class="btn-big" id="btn-pick">🍚 帮我定今天的午饭</button>';
+  $('#btn-pick').onclick = startPick;
+}
+
+/* ---- AI 思考过程（stepping 反馈） ---- */
+const THINK_STEPS = r => {
+  const p = state.prefs;
+  const mods = r.mods;
+  const arr = ['正在翻开你的口味档案…'];
+  arr.push(p.excludes.length ? `避开 ${p.excludes.length} 种你长期不吃的食材…` : '确认长期忌口清单（空）…');
+  if(mods.moods.length){
+    arr.push(`懂了，今天想吃${mods.moods.map(t=>t.label).join('、')}，按这个感觉给你排…`);
+  }
+  const hardTokens = mods.tokens.filter(t => t.type !== 'mood');
+  if(hardTokens.length){
+    arr.push(`听到你刚提的要求：${hardTokens.map(t=>t.label).join('、')}…`);
+  }
+  if(p.lessOil || p.needStaple) arr.push(`筛掉${p.lessOil?'油炸重油':''}${p.lessOil&&p.needStaple?'和':''}${p.needStaple?'没主食的':''}选项…`);
+  arr.push(r.yest ? `想起来了，你昨天吃的是${r.yest.name}，今天换一道…` : '最近没有吃饭记录，随便发挥一下…');
+  arr.push(r.total > 1 ? `今天一共有 ${r.total} 道合条件，按你的口味排个序…` : (r.total === 1 ? '只剩 1 道完全合条件的了…' : '符合全部条件的有点少，想想怎么帮你放宽…'));
+  return arr;
+};
+function runThinking(steps){
+  zone.innerHTML = `<div class="thinking">
+    <div class="thinking-head">
+      <div class="ai-orb"></div>
+      <div><b>饭来 AI 正在替你点菜</b><small>口味 · 忌口 · 历史记忆一起考虑</small></div>
+    </div>
+    ${steps.map((s,i)=>`<div class="t-step" data-i="${i}"><span class="tick">✓</span><span>${s}</span></div>`).join('')}
+    <div style="margin-top:20px">
+      <div class="skeleton-row"></div><div class="skeleton-row s2"></div><div class="skeleton-row s3"></div>
+    </div>
+  </div>`;
+  $('#home-actions').style.display='none';
+  $('#empty-actions').style.display='none';
+  return new Promise(res => {
+    let i = 0;
+    const els = zone.querySelectorAll('.t-step');
+    (function next(){
+      if(i>0){ els[i-1].classList.remove('active'); els[i-1].classList.add('done'); els[i-1].querySelector('.tick').textContent='✓'; }
+      if(i < steps.length){
+        els[i].classList.add('active');
+        els[i].querySelector('span:last-child').insertAdjacentHTML('beforeend','<span class="typing-dots"><i></i><i></i><i></i></span>');
+        i++; setTimeout(next, 720);
+      } else res();
+    })();
+  });
+}
+
+/* ---- 推荐卡（rank=在候选池中的真实位置） ---- */
+function paintDish(d, reasons, confirmed, rank, total, anim){
+  anim = anim || 'enter';
+  rank = rank || 0; total = total || 1;
+  const m = matchScore(d, rank);
+  const tags = [d.cuisine, SPICE_LABEL[d.spice], d.oil===1?'轻油':d.oil===2?'油量适中':'重油', '非油炸','油炸', d.staple].filter(Boolean);
+  const uniq = [...new Set(tags)].filter(t=>t!=='油炸'||d.fried).filter(t=>!(t==='非油炸'&&d.fried));
+  // 徽章与顶部文案随候选位置变化，不再每道菜都"AI荐·只此一道"
+  let stamp, tagLine;
+  if(confirmed){
+    stamp = {cls:'locked', b:'已定', s:'LOCKED'};
+    tagLine = `今日午餐 · 已敲定`;
+  }else if(rank === 0){
+    stamp = {cls:'', b:'首推', s:'TOP PICK'};
+    tagLine = total > 1 ? `今天 ${total} 道菜合条件 · <b>它排第 1</b>` : `今天只有 1 道完全合条件`;
+  }else{
+    stamp = {cls:'alt', b: rank < 3 ? '再看看' : '备选', s:`PICK ${String(rank+1).padStart(2,'0')}`};
+    tagLine = `第 <b>${rank+1}</b> / ${total} 个选择 · 按口味匹配排序`;
+  }
+  zone.innerHTML = `<div class="dish-card ${anim} ${confirmed?'confirmed':''}" id="dish-card">
+    <div class="ticket-top">
+      <div class="ticket-label">
+        <div class="ai-tag">${tagLine}</div>
+        <div class="stamp ${stamp.cls}"><b>${stamp.b}</b><small>${stamp.s}</small></div>
+      </div>
+      <div class="dish-hero">
+        <div class="dish-emoji">${d.emoji}</div>
+        <div class="dish-name">
+          <h3>${d.name}</h3>
+          <div class="meta"><span class="price">¥${d.price}</span><span>·</span><span>主菜：${d.main}</span></div>
+          <div class="match-wrap">
+            <div class="match-bar"><i style="width:${m}%"></i></div>
+            <div class="match-num">${m}%<span style="font-size:10px;color:var(--ink-faint);font-family:var(--sans)"> 匹配</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="perforation"></div>
+    <div class="ticket-body">
+      <div class="reasons-title">${confirmed ? '今天的选择' : '为什么是它？'}</div>
+      ${reasons.map((r,i)=>{
+        const [text, warn] = typeof r === 'string' ? [r,''] : r;
+        return `<div class="reason ${warn}" style="animation-delay:${.55+i*.22}s"><span class="r-ic">${warn?'~':'✓'}</span><span>${text}</span></div>`;
+      }).join('')}
+      <div class="dish-tags">${uniq.map(t=>`<span>${t}</span>`).join('')}</div>
+    </div>
+    <div class="confirmed-veil"><div class="big-stamp"><b>已定</b><small>TODAY'S LUNCH</small></div></div>
+  </div>`;
+  $('#home-actions').style.display='flex';
+  $('#empty-actions').style.display='none';
+  if(confirmed){
+    $('#btn-confirm').style.display='none';
+    $('#btn-reroll').style.display='none';
+    $('#home-actions').insertAdjacentHTML('beforeend',
+      `<div id="after-confirm" style="display:flex;flex-direction:column;gap:9px">
+        <div class="confirmed-tip">✅ 今天就吃它了！明天我会自动避开「${d.main}」</div>
+        <button class="btn-undo" id="btn-undo">点错了？撤销这次选择</button>
+      </div>`);
+    $('#btn-undo').onclick = undoConfirm;
+  }else{
+    $('#btn-confirm').style.display='flex';
+    $('#btn-reroll').style.display='flex';
+    const ac = $('#after-confirm'); if(ac) ac.remove();
+    $('#btn-confirm').className = 'btn-main';
+    $('#btn-confirm').innerHTML = '就吃这个了！';
+    updateRerollBtn();
+  }
+}
+
+// 根据候选池位置更新"换一个"按钮文案
+function updateRerollBtn(){
+  const btn = $('#btn-reroll');
+  if(!btn || !state.pool) return;
+  const {ids, idx} = state.pool;
+  if(idx >= ids.length - 1 && ids.length > 1){
+    btn.innerHTML = '<span class="ricon">↻</span>看完啦，重来';
+  }else{
+    btn.innerHTML = `<span class="ricon">↻</span>换一个 <small style="font-size:11px;font-weight:400;opacity:.65;margin-left:2px">${idx+1}/${ids.length}</small>`;
+  }
+}
+
+/* ---- 无候选兜底：诚实说明是哪些条件卡住了 ---- */
+function paintNoResult(){
+  const mods = activeMods();
+  const actions = [];
+  if(mods.tokens.length) actions.push(`<button class="btn-reroll" id="btn-clear-mods" style="width:100%">🧹 先清空你刚提的临时要求（${mods.tokens.length} 条）</button>`);
+  if(state.prefs.lessOil) actions.push(`<button class="btn-reroll" id="btn-loosen" style="width:100%">🫧 暂时放宽长期设置里的"少油少炸"</button>`);
+  if(!actions.length) actions.push(`<button class="btn-reroll" id="btn-reset-ex" style="width:100%">🫧 去偏好里精简一下忌口清单</button>`);
+  zone.innerHTML = `<div class="dish-card enter"><div class="empty-result">
+    <div class="e-ic">🍽️</div>
+    <h4>这些条件叠在一起，今天没有菜能全部满足</h4>
+    <p>不是菜不够，是要求太严了。放宽一条就能立刻重新筛，长期口味档案我不会替你改。</p>
+    <div style="display:flex;flex-direction:column;gap:9px">${actions.join('')}</div>
+  </div></div>`;
+  const cm = $('#btn-clear-mods'); if(cm) cm.onclick = ()=>{ clearTodayMods(); startPick(); };
+  const lo = $('#btn-loosen'); if(lo) lo.onclick = ()=>{ state.prefs.lessOil = false; save(); syncPrefsUI(); startPick(); };
+  const re = $('#btn-reset-ex'); if(re) re.onclick = ()=>openSheet('sheet-prefs');
+  $('#home-actions').style.display='none';
+  $('#empty-actions').style.display='none';
+}
+
+/* ---- 候选池：一次构建，锁定排序与总数 ---- */
+function buildPool(r){
+  return {ids:r.scored.map(x=>x.d.id), idx:0};
+}
+function poolDish(){
+  const id = state.pool.ids[state.pool.idx];
+  return DISHES.find(d=>d.id===id);
+}
+function paintCurrentPick(anim){
+  const d = poolDish();
+  const r = getCandidates();
+  currentDish = d;
+  paintDish(d, buildReasons(d, r.yest, state.pool.idx, state.pool.ids.length, r.mods), false, state.pool.idx, state.pool.ids.length, anim);
+}
+
+/* ---- 主流程：开始挑 ---- */
+async function startPick(){
+  if(picking) return;
+  const r = getCandidates();
+  picking = true;
+  await runThinking(THINK_STEPS(r));
+  if(!r.scored.length){ state.pool = null; save(); paintNoResult(); picking=false; return; }
+  state.pool = buildPool(r);
+  save();
+  paintCurrentPick();
+  picking = false;
+}
+
+/* ---- 换一个：在真实候选池内往后翻，翻完诚实告知 ---- */
+async function reroll(){
+  const btn = $('#btn-reroll');
+  if(!currentDish || !state.pool || btn.classList.contains('spinning')) return;
+  // 已在最后一道 → 不再伪装"还有下一道"
+  if(state.pool.idx >= state.pool.ids.length - 1){
+    paintPoolEnd();
+    return;
+  }
+  btn.classList.add('spinning');
+  const card = $('#dish-card');
+  card.classList.add('reroll-out');
+  await new Promise(r=>setTimeout(r,340));
+  btn.classList.remove('spinning');
+  state.pool.idx += 1;
+  save();
+  // 动画类必须在元素插入首帧就带上，否则同帧换类会让动画被跳过、卡片停在 opacity:0
+  paintCurrentPick('reroll-in');
+}
+
+/* ---- 全部看完：诚实兜底，不编新菜 ---- */
+function paintPoolEnd(){
+  const n = state.pool.ids.length;
+  const mods = activeMods();
+  zone.innerHTML = `<div class="dish-card enter"><div class="empty-result">
+    <div class="e-ic">🗂️</div>
+    <h4>今天合条件的 ${n} 道菜都翻完啦</h4>
+    <p>我没有偷偷给你编新的。可以回到第 1 道重看，或者放宽一个条件扩大范围。</p>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <button class="btn-main" id="btn-back-first" style="width:100%">↑ 回到第 1 道重看</button>
+      ${mods.tokens.length ? '<button class="btn-reroll" id="btn-end-clear" style="width:100%">🧹 清空刚提的临时要求，重新筛</button>' : ''}
+      ${state.prefs.lessOil ? '<button class="btn-reroll" id="btn-end-loosen" style="width:100%">🫧 放宽"少油少炸"</button>' : ''}
+    </div>
+  </div></div>`;
+  $('#home-actions').style.display='none';
+  $('#empty-actions').style.display='none';
+  $('#btn-back-first').onclick = ()=>{ state.pool.idx = 0; save(); paintCurrentPick(); };
+  const ec = $('#btn-end-clear'); if(ec) ec.onclick = ()=>{ clearTodayMods(); startPick(); };
+  const el = $('#btn-end-loosen'); if(el) el.onclick = ()=>{ state.prefs.lessOil = false; save(); syncPrefsUI(); startPick(); };
+}
+
+/* ---- 确认 / 撤销 ---- */
+function confirmDish(){
+  if(!currentDish) return;
+  state.history = state.history.filter(h => h.date !== todayKey());
+  state.history.unshift({date:todayKey(), id:currentDish.id, name:currentDish.name, main:currentDish.main, emoji:currentDish.emoji});
+  save();
+  const card = $('#dish-card'); card.classList.add('confirmed');
+  burst();
+  const r = getCandidates();
+  paintDish(currentDish, buildReasons(currentDish, r.yest, state.pool?state.pool.idx:0, state.pool?state.pool.ids.length:1, r.mods), true);
+  $('#streak-n').textContent = calcStreak();
+  renderHistoryList();
+  toast('已记住，明天帮你避开「'+currentDish.main+'」');
+}
+function undoConfirm(){
+  state.history = state.history.filter(h => h.date !== todayKey());
+  state.pool = null;
+  save();
+  renderHome();
+  toast('已撤销，可以重新挑啦');
+}
+function burst(){
+  const colors = ['#FFD100','#FF4D1A','#06C167','#1A1A1A'];
+  const card = $('#dish-card');
+  for(let i=0;i<14;i++){
+    const c = document.createElement('i');
+    c.className='confetti';
+    c.style.cssText = `left:${30+Math.random()*260}px;top:${120+Math.random()*60}px;background:${colors[i%4]};border-radius:${i%2?'50%':'2px'}`;
+    card.appendChild(c);
+    requestAnimationFrame(()=>{ c.style.animationDelay=(i*0.03)+'s'; c.classList.add('go'); });
+    setTimeout(()=>c.remove(),1600);
+  }
+}
+
+/* ---- 历史列表 ---- */
+function renderHistoryList(){
+  const wrap = $('#history-list');
+  const sorted = [...state.history].sort((a,b)=>b.date.localeCompare(a.date));
+  const streak = calcStreak();
+  $('#sheet-streak').textContent = streak;
+  $('#streak-n').textContent = streak;
+  if(!sorted.length){ wrap.innerHTML='<div class="h-empty">还没有记录，今天就是第一天 🍚</div>'; return; }
+  const now = new Date();
+  wrap.innerHTML = sorted.slice(0,7).map(h => {
+    const diff = Math.round((now - new Date(h.date+'T12:00:00'))/day);
+    const dayLabel = diff===0?'今天':diff===1?'昨天':diff===2?'前天':`${diff}天前`;
+    return `<div class="h-item ${diff===0?'today':''}">
+      <div class="h-emoji">${h.emoji}</div>
+      <div class="h-tx"><b>${h.name}</b><small>主菜 · ${h.main}</small></div>
+      <div class="h-day">${h.date.slice(5)}<i>${dayLabel}${diff===0?' ✓':''}</i></div>
+    </div>`;
+  }).join('');
+}
+
+/* ---- 抽屉 ---- */
+function openSheet(id){
+  $('#mask-'+id.split('-')[1]).classList.add('open');
+  $('#'+id).classList.add('open');
+}
+function closeSheet(id){
+  $('#mask-'+id.split('-')[1]).classList.remove('open');
+  $('#'+id).classList.remove('open');
+}
+
+/* ================= 绑定 ================= */
+$('#btn-start').onclick = ()=>{
+  const p = readPrefsUI($('#view-onbo'));
+  if(!p.flavors.length){ toast('至少选一个喜欢的味道吧'); return; }
+  state.prefs = p; state.pool = null; save();
+  showView('view-home'); renderHome(); startPick();
+};
+$('#btn-pick').onclick = startPick;
+$('#btn-reroll').onclick = reroll;
+$('#btn-confirm').onclick = confirmDish;
+$('#btn-history').onclick = ()=>{ renderHistoryList(); openSheet('sheet-history'); };
+$('#btn-prefs').onclick = ()=>{ syncPrefsUI(); openSheet('sheet-prefs'); };
+$('#mask-history').onclick = ()=>closeSheet('sheet-history');
+$('#mask-prefs').onclick = ()=>closeSheet('sheet-prefs');
+$('#btn-save-prefs').onclick = ()=>{
+  const p = readPrefsUI($('#sheet-prefs'));
+  if(!p.flavors.length){ toast('至少选一个喜欢的味道吧'); return; }
+  state.prefs = p; state.pool = null; save();
+  closeSheet('sheet-prefs'); renderHome();
+  toast('口味已更新'); startPick();
+};
+$('#btn-reset').onclick = ()=>{
+  localStorage.removeItem(KEY);
+  state = load(); state.prefs = null; save();
+  closeSheet('sheet-prefs'); syncPrefsUI(); showView('view-onbo');
+  toast('已恢复出厂演示数据');
+};
+/* 自然语言需求输入 */
+$('#ask-send').onclick = submitUtterance;
+$('#ask-input').addEventListener('keydown', e => {
+  // 中文输入法组词中的回车只用于确认候选词，不触发提交
+  if(e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) submitUtterance();
+});
+document.querySelectorAll('.ex-chip').forEach(b => b.onclick = () => {
+  $('#ask-input').value = b.dataset.say;
+  submitUtterance();
+});
+
+/* ================= 启动 ================= */
+syncPrefsUI();
+if(state.prefs){ showView('view-home'); renderHome(); }
+</script>
+</body>
+</html>
